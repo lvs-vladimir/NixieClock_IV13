@@ -48,6 +48,9 @@ void Task1( void * pvParameters ){
     
  //Изминение яркости IV13 
  if (SensorTimerI2C.isReady()) {
+
+  //getCharCode(text[1]); 
+  
      //Serial.print("Temp C*: "); Serial.print(bme.readTemperature());
     // Serial.print(" lux: "); Serial.println(veml.readLux());  
 
@@ -79,8 +82,7 @@ void Task1( void * pvParameters ){
 
     ledcWrite(PWM_CHANNEL, brightnessIV13);
     }
-    
-    
+     
     //Счетчик времени и синхронизация с RTC
     if (dotTimer.isReady()) {
       calculateTime();    
@@ -137,7 +139,9 @@ if(second==30){ timerTIME.start();}//Запускаем таймер для вы
         
         newhour = hour;
         newminute = minute;
-        newsecond = second;     
+        newsecond = second;   
+        //Переобразуем из в числа в char 
+        sprintf_P(textbuff, (PGM_P)F("%02d%02d%02d"), newhour, newminute, newsecond); 
         setNewTime();  
        // newTime[0] = newhour / 10;
        // newTime[1] = newhour % 10;
@@ -157,6 +161,8 @@ if (!flipInit)
         newhour = (num6*10)+num5;
         newminute = (num4*10)+num3;
         newsecond = (num2*10)+num1;
+        //Переобразуем из в числа в char 
+        sprintf_P(textbuff, (PGM_P)F("%02d%02d%02d"), newhour, newminute, newsecond);
         setNewTime();
       }
 }
@@ -171,6 +177,8 @@ else disp++;
         newhour = (num6*10)+num5;
         newminute = (num4*10)+num3;
         newsecond = (num2*10)+num1;
+        //Переобразуем из в числа в char 
+        sprintf_P(textbuff, (PGM_P)F("%02d%02d%02d"), newhour, newminute, newsecond);
         setNewTime();
       }
   }
@@ -179,41 +187,17 @@ else disp++;
     case 3:
   //Выводим Температуру
   //if (TempValue>0){
+     
+        newhour = (num6*10)+num5;
+        newminute = (num2*10)+num1;
+        newsecond = (num4*10)+num3;
+        sprintf_P(textbuff, (PGM_P)F("%02d%02d%02d"), newhour, newminute, newsecond);
+        textbuff[0]=' ';
+        textbuff[1]=' ';
+        textbuff[4]='*';
+        textbuff[5]='C';
+        setNewTime();  
   
-       
-       if  (trainLeaving){
-        currentLamp = 0;
-        trainLeaving = false;
-        flipTimer.reset();
-       }
-       if (trainTimer.isReady()){
-        
-        for(byte i=5; i>currentLamp; i--){
-        newTime[i] = 10;
-        }
-      
-      currentLamp++;
-      //Serial.print(currentLamp);
-      if (currentLamp >= 6) {
-          trainLeaving = true; //coming
-          currentLamp = 0;
-
-        }
-
-
-        }
-        for(byte i=0; i<6; i++) {Bufer[i]=10;}
-        Bufer[6] = 10;
-         if(minus) Bufer[7] = 14;
-        else Bufer[7] = 10;
-        Bufer[8] = newminute / 10;
-        Bufer[9] = newminute % 10;
-        Bufer[10] = 12;
-        Bufer[11] = 13;
-
-       
- 
-      
   //}
      // 
   break;

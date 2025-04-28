@@ -7,12 +7,27 @@ void setup() {
   EEPROM.begin(300);
   EEPROM.get(0, lp);
 
-  WiFi.begin(lp.ssid, lp.pass);
+  if(initWiFi()) {//Инициализация WiFI
+    Serial.print ("WiFi успешно подключен");
+  }
+else{
+    // запускаем точку доступа
+    WiFi.mode(WIFI_AP);
+    WiFi.softAP("IV13-CONNECT");
+    IPAddress IP = WiFi.softAPIP();
+    Serial.print("AP IP address: ");
+    Serial.println(IP); 
+}
+int fgd=getCharCode('A');
+Serial.print(fgd);
+Serial.println("Код символа а");
+/*else  WiFi.begin(lp.ssid, lp.pass);
   //WiFi.begin(ssid, password); //Wifi  
   while (WiFi.status() != WL_CONNECTED) {    
     delay (500);    
     Serial.print (".");  
   }
+*/
 
   //Читаем данные openWeather из памяти
   EEPROM.get(60, ow);
@@ -57,18 +72,20 @@ void setup() {
   // подключаем конструктор и запускаем
 
   ui.attachBuild(build);
+  ui.attach(action);
   ui.start();
+  ui.log.start(30);   // размер буфера
   ui.enableOTA();   // без пароля
   //ui.enableOTA("admin", "pass");  // с паролем
-  ui.attach(action);
-  ui.log.start(30);   // размер буфера
+ 
+
   
 
   if (!LittleFS.begin()) Serial.println("FS Error");
   ui.downloadAuto(true);
 
-  ui.start();
-  ui.attachBuild(build);
+  //ui.start();
+  //ui.attachBuild(build);
 
 // подключаем конструктор и запускаем
 
