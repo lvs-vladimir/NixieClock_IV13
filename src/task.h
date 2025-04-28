@@ -36,7 +36,9 @@ void Task1( void * pvParameters ){
  // Serial.println(xPortGetCoreID());
 
   for(;;){
-
+    ArduinoOTA.handle();//Обновление по воздуху
+    ui.tick();//Работа web интерфейса
+  
      //if (ligtSensorTimer.isReady())   NightIn();//считываем датчик света
 
    //httpServer.handleClient();//Прошивка через web интерфейс
@@ -44,19 +46,38 @@ void Task1( void * pvParameters ){
     
      UpdateDisplay(); 
     
-  
+ //Изминение яркости IV13 
  if (SensorTimerI2C.isReady()) {
      //Serial.print("Temp C*: "); Serial.print(bme.readTemperature());
     // Serial.print(" lux: "); Serial.println(veml.readLux());  
-    vemlvalue = veml.readLux();
-    if (vemlvalue>800) vemlvalue=800;
-    Serial.print(" vemlvalue: "); Serial.println(vemlvalue); 
-    vemlvalue = map(vemlvalue, 0, 800, 800, 0);
-    bmelvalue = bme.readTemperature();
+
+    //Устанавливаем яркость IV13 (подбор на глаз) в зависимости от уровня освещения
+    vemllux = veml.readLux();
+    vemlvalue = vemllux;
+    if (vemlvalue>1000) vemlvalue=1000;
+    int brightnessIV13;
+    if (vemlvalue<=1000 && vemlvalue>900) brightnessIV13=0; //Максимальная яркость
+    if (vemlvalue<895 && vemlvalue>700) brightnessIV13=100;//90%
+    if (vemlvalue<695 && vemlvalue>300) brightnessIV13=250;//80%
+    if (vemlvalue<295 && vemlvalue>100) brightnessIV13=500;//50%
+    if (vemlvalue<95 && vemlvalue>50) brightnessIV13=600;//30%
+    if (vemlvalue<45 && vemlvalue>15) brightnessIV13=750;//10%
+    if (vemlvalue<10 && vemlvalue>=0) brightnessIV13=800;//5%
+    //brightnessIV13 = map(vemlvalue, 0, 800, 800, 0);
+
+    //Считываем данные с bme280
+    bmetemperature = bme.readTemperature();
+    bmepressure = bme.readPressure();
+    altitude = pressureToAltitude(bmepressure);
+    bmepressure = pressureToMmHg(bmepressure);
+    bmehumudity = bme.readHumidity();
+
+     Serial.print(" vemlvalue: "); Serial.println(vemlvalue); 
      Serial.print(" lux: "); Serial.println(veml.readLux()); 
-     Serial.print(" PWMvalue: "); Serial.println(vemlvalue); 
-     Serial.print("Temp C*: "); Serial.println(bmelvalue);
-    ledcWrite(PWM_CHANNEL, vemlvalue);
+     Serial.print(" PWMvalue: "); Serial.println(brightnessIV13); 
+     Serial.print("Temp C*: "); Serial.println(bmetemperature);
+
+    ledcWrite(PWM_CHANNEL, brightnessIV13);
     }
     
     
@@ -85,7 +106,7 @@ void Task1( void * pvParameters ){
    // TrainOn=true;
 
  }
-
+//Формирование значений для вывода на индикаторы
 if (disp==1) num=pricebtc;
 if (disp==2) num=priceeth;
 if (disp==3) num=TempValue;

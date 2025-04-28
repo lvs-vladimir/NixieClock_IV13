@@ -9,38 +9,48 @@
 #include <Arduino_JSON.h>
 #include <HTTPClient.h>
 #include <WiFi.h>
-//#include <Adafruit_Sensor.h>
-//#include <Adafruit_BME280.h>
 #include <Adafruit_VEML7700.h>
 #include <GyverBME280.h> 
+#include <EEPROM.h>
 //#include <Wire.h>
 //#include <WiFiClient.h>
 //#include <WebServer.h>
-//#include <ESPmDNS.h>
+#include <ESPmDNS.h>
+#include <ArduinoOTA.h>
 //#include <Update.h>
+#include <LittleFS.h>
 
-//BME280
-//GyverBME280 bme;
+#include <GyverPortal.h>
+GyverPortal ui(&LittleFS); // для проверки файлов
 
-//VEML7700
-//TwoWire I2CBME = TwoWire(0);
+struct LoginPass {
+  char ssid[20];
+  char pass[20];
+};
+LoginPass lp;
+
 Adafruit_VEML7700 veml = Adafruit_VEML7700();
-//Adafruit_BME280 bme;
 GyverBME280 bme;
 
 TaskHandle_t Task_0;
 TaskHandle_t Task_1;
 
 
-//Openweather 
+//Openweather подключение к сервису
+struct LoginOW {
+  char owMapApiKey[60];
+  char owCity[40];
+};
+LoginOW ow;
+
 String openWeatherMapApiKey = "d5489beb80bf49ffbe818eb9a8eb261c";
 String city = "Barnaul";
-String countryCode = "RU";
+//String countryCode = "RU";
 
 char ssid[] = "WAY";//WAY2G       // your network SSID (name)
 char password[] = "lukjanow";  // your network key
 
-#include "html.h"
+//#include "html.h"
 
 //Список часовых поясов  https://en.wikipedia.org/wiki/List_of_UTC_time_offsets
 const long utcOffsetInSeconds = 25200; //UTC +7 в секундах Время Барнаул
@@ -50,7 +60,7 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 //Ключ API pro coinmarketcup.com
-const String API_KEY = "68b5269b-464d-46d8-90fe-bcbbb262cf46";
+//const String API_KEY = "68b5269b-464d-46d8-90fe-bcbbb262cf46";
 
 //API ключ от вашего профиля на сайте http://narodmom.ru
 const String NarodMonApiKey = "uEvRz28u2aZk3";
@@ -199,7 +209,7 @@ timerMinim TestTimer(3000); //  тестирование индикаторов.
 timerMinim trainTimer(300); // и для поезда
 timerMinim modeTimer((long)60 * 1000);
 timerMinim modeTimerP((long)202 * 1000);
-timerMinim SensorTimerI2C(5000); //  тестирование индикаторов. 3000
+timerMinim SensorTimerI2C(3000); // Время обновления датчиков и яркости индикаторов
 
 
 
@@ -257,14 +267,26 @@ boolean DotRun, DotDirection = false;
 boolean TrainOn = false;
 boolean TrainDirection = true;
 byte al,bl,cl;//борьба с дребезгом сенсора
-int vemlvalue;
-float bmelvalue;
+int vemlvalue, vemllux;
+float bmevalue, bmehumudity, bmepressure, bmetemperature, altitude;
 byte decToBcd(byte val) {
   return ( (val / 10 * 16) + (val % 10) );
 } 
 byte bcdToDec(byte val) {
   return ( (val / 16 * 10) + (val % 16) );
 }
+
+
+// переменные
+int valNum;
+String valPass;
+int valSlider;
+float valSpin;
+GPdate valDate;
+GPtime valTime;
+GPcolor valCol;
+int valSelect;
+int valRad;
 
 
 // отправить на индикаторы
@@ -299,6 +321,8 @@ void TimeUpdate(){
  
     }
 }
+
+
 
 String httpGETRequest(const char* serverName) {
   HTTPClient http;
@@ -364,6 +388,8 @@ CS_ON_HSPI;
 void Task0( void *pvParameters );
 void Task1( void *pvParameters );
 
+
+#include "webui.h"//Веб интерфейс
 #include "setup.h"
 
 #include "loop.h"

@@ -2,15 +2,76 @@ void setup() {
 
   //I2CBME.begin(17, 16);
  // Wire.begin(21, 23);
-  Serial.begin(9600);  
+  Serial.begin(115200);  
+  // читаем логин пароль WiFi из памяти
+  EEPROM.begin(300);
+  EEPROM.get(0, lp);
 
-  WiFi.begin(ssid, password); //Wifi  
+  WiFi.begin(lp.ssid, lp.pass);
+  //WiFi.begin(ssid, password); //Wifi  
   while (WiFi.status() != WL_CONNECTED) {    
     delay (500);    
     Serial.print (".");  
-  }  
+  }
+
+  //Читаем данные openWeather из памяти
+  EEPROM.get(60, ow);
+  openWeatherMapApiKey=ow.owMapApiKey;
+  city=ow.owCity;
+
+  //Обновление по воздуху   
+  ArduinoOTA.setHostname("ESP32");
+
+  ArduinoOTA.onStart([]() {
+  	String type;
+  	if (ArduinoOTA.getCommand() == U_FLASH)
+    	type = "sketch";
+  	else // U_SPIFFS
+    	type = "filesystem";
+
+  	// NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+  	Serial.println("Start updating " + type);
+	})
+	.onEnd([]() {
+  	Serial.println("\nEnd");
+	})
+	.onProgress([](unsigned int progress, unsigned int total) {
+  	Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+	})
+	.onError([](ota_error_t error) {
+  	Serial.printf("Error[%u]: ", error);
+  	if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+  	else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+  	else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+  	else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+  	else if (error == OTA_END_ERROR) Serial.println("End Failed");
+	});
+     
+  ArduinoOTA.begin();
+                
+  Serial.println("Ready");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  //Обновление по воздуху 
+
+  // подключаем конструктор и запускаем
+
+  ui.attachBuild(build);
+  ui.start();
+  ui.enableOTA();   // без пароля
+  //ui.enableOTA("admin", "pass");  // с паролем
+  ui.attach(action);
+  ui.log.start(30);   // размер буфера
   
-  
+
+  if (!LittleFS.begin()) Serial.println("FS Error");
+  ui.downloadAuto(true);
+
+  ui.start();
+  ui.attachBuild(build);
+
+// подключаем конструктор и запускаем
+
   pinMode(HSPI_SS, OUTPUT);
   pinMode(G, OUTPUT);
   
