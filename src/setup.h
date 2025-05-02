@@ -1,26 +1,41 @@
-void setup() { 
+//void addWithoutWipe(bool addw);
 
+void setup() { 
+  
   //I2CBME.begin(17, 16);
  // Wire.begin(21, 23);
   Serial.begin(115200);  
   // читаем логин пароль WiFi из памяти
-  EEPROM.begin(300);
-  EEPROM.get(0, lp);
-
-  if(initWiFi()) {//Инициализация WiFI
-    Serial.print ("WiFi успешно подключен");
+  //addWithoutWipe(true);
+ // EEPROM.begin(300);
+  //EEPROM.get(0, mydata);
+//Подключение файловой системы и чтение настроек
+  LittleFS.begin();
+  //data.addWithoutWipe(true);
+  
+  FDstat_t stat = data.read();
+  switch (stat) {
+    case FD_FS_ERR: Serial.println("FS Error");
+      break;
+    case FD_FILE_ERR: Serial.println("Error");
+      break;
+    case FD_WRITE: Serial.println("Data Write");
+      break;
+    case FD_ADD: Serial.println("Data Add");
+      break;
+    case FD_READ: Serial.println("Data Read");
+      break;
+    default:
+      break;
   }
-else{
-    // запускаем точку доступа
-    WiFi.mode(WIFI_AP);
-    WiFi.softAP("IV13-CONNECT");
-    IPAddress IP = WiFi.softAPIP();
-    Serial.print("AP IP address: ");
-    Serial.println(IP); 
-}
-int fgd=getCharCode('A');
-Serial.print(fgd);
-Serial.println("Код символа а");
+
+  Serial.println("Data read:");
+  Serial.println(mydata.ssid);
+  Serial.println(mydata.pass);
+  Serial.println(mydata.owCity);
+  Serial.println(mydata.owMapApiKey);
+
+  WiFiConnect_APcreate();
 /*else  WiFi.begin(lp.ssid, lp.pass);
   //WiFi.begin(ssid, password); //Wifi  
   while (WiFi.status() != WL_CONNECTED) {    
@@ -30,47 +45,14 @@ Serial.println("Код символа а");
 */
 
   //Читаем данные openWeather из памяти
-  EEPROM.get(60, ow);
-  openWeatherMapApiKey=ow.owMapApiKey;
-  city=ow.owCity;
+ // EEPROM.get(60, ow);
+  //openWeatherMapApiKey=ow.owMapApiKey;
+  //city=ow.owCity;
 
-  //Обновление по воздуху   
-  ArduinoOTA.setHostname("ESP32");
+  //Вкл обновление по "воздуху"
+  OtaUpdate();
 
-  ArduinoOTA.onStart([]() {
-  	String type;
-  	if (ArduinoOTA.getCommand() == U_FLASH)
-    	type = "sketch";
-  	else // U_SPIFFS
-    	type = "filesystem";
-
-  	// NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-  	Serial.println("Start updating " + type);
-	})
-	.onEnd([]() {
-  	Serial.println("\nEnd");
-	})
-	.onProgress([](unsigned int progress, unsigned int total) {
-  	Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-	})
-	.onError([](ota_error_t error) {
-  	Serial.printf("Error[%u]: ", error);
-  	if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-  	else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-  	else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-  	else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-  	else if (error == OTA_END_ERROR) Serial.println("End Failed");
-	});
-     
-  ArduinoOTA.begin();
-                
-  Serial.println("Ready");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-  //Обновление по воздуху 
-
-  // подключаем конструктор и запускаем
-
+  // подключаем веб интерфейс GiverPortal
   ui.attachBuild(build);
   ui.attach(action);
   ui.start();
@@ -80,44 +62,40 @@ Serial.println("Код символа а");
  
 
   
-
   if (!LittleFS.begin()) Serial.println("FS Error");
   ui.downloadAuto(true);
 
-  //ui.start();
-  //ui.attachBuild(build);
-
 // подключаем конструктор и запускаем
 
+//Инициализация SPI шины для управления tpic6b595
   pinMode(HSPI_SS, OUTPUT);
-  pinMode(G, OUTPUT);
-  
   digitalWrite(HSPI_SS, HIGH);
-  digitalWrite(G, HIGH);  
-
   hspi = new SPIClass(HSPI);
-  hspi->begin(HSPI_SCLK, HSPI_MISO, HSPI_MOSI, HSPI_SS); //SCLK, MISO, MOSI, SS
+  hspi->begin(HSPI_SCLK, HSPI_MISO, HSPI_MOSI, HSPI_SS);
 
-//PWM на gpio4 для регулировки яркости пинов G TPIC6B595
+//PWM на gpio4 для регулировки яркости нуметронов
+  pinMode(G, OUTPUT);
+  digitalWrite(G, HIGH); 
   ledcSetup(PWM_CHANNEL, PWM_FREQ, PWM_RESOLUTION);
   ledcAttachPin(LED_OUTPUT_PIN, PWM_CHANNEL);
   ledcWrite(PWM_CHANNEL, 200);
   
+  //Подключение i2c датчиков с выводом значений
   bme.begin(0x76);
   veml.begin();
   veml.setLowThreshold(10000);
   veml.setHighThreshold(20000);
   veml.interruptEnable(true);
-  
-  timeClient.begin();
-  TimeUpdate();
-  getTemp();
-  getCrypto();
- // Serial.print("Temperature = ");
- // Serial.print(bme.readTemperature());
- // Serial.println(" *C");
- // Serial.print("lux: "); Serial.println(veml.readLux());
+  Serial.print("Temperature = ");
+  Serial.print(bme.readTemperature());
+  Serial.println(" *C");
+  Serial.print("lux: "); 
+  Serial.println(veml.readLux());
 
+
+
+
+//подключаем 2 ядра esp32
    xTaskCreatePinnedToCore(
         Task0, /* Функция, содержащая код задачи */
         "Task_0", /* Название задачи */

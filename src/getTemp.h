@@ -2,7 +2,7 @@
 
 void getTemp(){
 
-String serverPath = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=" + openWeatherMapApiKey +"&units=metric";
+String serverPath = "http://api.openweathermap.org/data/2.5/weather?q=" + (String)mydata.owCity + "&APPID=" + (String)mydata.owMapApiKey +"&units=metric";
 
 //String jsonBuffer;
 String jsonBuffer = httpGETRequest(serverPath.c_str());

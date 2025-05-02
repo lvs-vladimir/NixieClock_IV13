@@ -1,382 +1,5 @@
 #include <Arduino.h>
-#include "SPI.h"
-
-#include "timer2Minim.h"
-
-#include <NTPClient.h>
-#include <WiFiUdp.h>
-#include <ArduinoJson.h>
-#include <Arduino_JSON.h>
-#include <HTTPClient.h>
-#include <WiFi.h>
-#include <Adafruit_VEML7700.h>
-#include <GyverBME280.h> 
-#include <EEPROM.h>
-//#include <Wire.h>
-//#include <WiFiClient.h>
-//#include <WebServer.h>
-#include <ESPmDNS.h>
-#include <ArduinoOTA.h>
-//#include <Update.h>
-#include <LittleFS.h>
-
-#include <GyverPortal.h>
-#include <GyverSegment.h>
-
-GyverPortal ui(&LittleFS); // для проверки файлов
-
-struct LoginPass {
-  char ssid[20];
-  char pass[20];
-};
-LoginPass lp;
-
-Adafruit_VEML7700 veml = Adafruit_VEML7700();
-GyverBME280 bme;
-
-TaskHandle_t Task_0;
-TaskHandle_t Task_1;
-
-
-//Openweather подключение к сервису
-struct LoginOW {
-  char owMapApiKey[60];
-  char owCity[40];
-};
-LoginOW ow;
-
-String openWeatherMapApiKey = "d5489beb80bf49ffbe818eb9a8eb261c";
-String city = "Barnaul";
-//String countryCode = "RU";
-
-char ssid[] = "WAY";//WAY2G       // your network SSID (name)
-char password[] = "lukjanow";  // your network key
-
-//#include "html.h"
-
-//Список часовых поясов  https://en.wikipedia.org/wiki/List_of_UTC_time_offsets
-const long utcOffsetInSeconds = 25200; //UTC +7 в секундах Время Барнаул
-
-// Определение NTP-клиента для получения времени
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
-
-//Ключ API pro coinmarketcup.com
-//const String API_KEY = "68b5269b-464d-46d8-90fe-bcbbb262cf46";
-
-//API ключ от вашего профиля на сайте http://narodmom.ru
-const String NarodMonApiKey = "uEvRz28u2aZk3";
-//ID профиля устройства (что бы узнать ид необходимо нажать на ссылку профиля например http://narodmom.ru/4548)
-const String TempSensorId = "6746";//"4548"; 6678
-//MD5 хеш сумма названия (nixieclockin18) вашего приложения в нижнем регистре в вашем профиле на сайте.
-const String UUID = "004f8154a800615565d1c35fca92f621"; 
-
-const char* SYMBOLBTC = "BTC";
-const char* SYMBOLETH = "ETH";
-const char* CONVERT_TO = "usd";
-
-int pricebtc, priceeth;
-int TempValue;
-byte disp=0;//текущий режим отображение: часы, крипта, дата, температура 
-byte anim=0;//текущая анимация Флип эффекты, поезд
-int num, num1, num2, num3, num4, num5,num6;
-
-//WiFiClientSecure httpsClient;    
-//WiFiClientSecure client;
-//CoinMarketCapApi api(client);
-
-
-
-SPIClass * hspi = NULL;
-
-#define CS_ON_HSPI (GPIO.out_w1ts = ((uint32_t)1 << 15))  
-#define CS_OFF_HSPI (GPIO.out_w1tc = ((uint32_t)1 << 15))
-
-#define G 16
-
-#define HSPI_MISO   12
-#define HSPI_MOSI   13
-#define HSPI_SCLK   14
-#define HSPI_SS     15
-
-
-const int PWM_CHANNEL = 0;    // ESP32 имеет 16 каналов, которые могут генерировать 16 независимых сигналов.
-const int PWM_FREQ = 15000;     // Официальный пример ESP32 использует частоту 5000 Гц.
-const int PWM_RESOLUTION = 10; // Мы будем использовать то же разрешение, что и Uno (8 бит, 0-255), но ESP32 может достигать 16 бит.
-
-// Максимальное значение рабочего цикла, основанное на разрешении ШИМ (будет 255, если разрешение составляет 8 бит)
-const int MAX_DUTY_CYCLE = (int)(pow(2, PWM_RESOLUTION) - 1);
-const int LED_OUTPUT_PIN = 16;
-
-byte second, minute, hour,newsecond, newminute, newhour, dayOfWeek, day, dayOfMonth, month, year, minsCount, hourCount, cryptoCount;
-boolean updateCrypto = true;  
-
-static const uint8_t _segCharMap[] = {
-  0,     //   0x20 32
-  0x02,  // ! 0x21 33
-  0x22,  // " 0x22 34
-  0x36,  // # 0x23 35
-  0x69,  // $ 0x24 36
-  0x2D,  // % 0x25 37
-  0x7B,  // & 0x26 38
-  0x20,  // ' 0x27 39
-  0x39,  // ( 0x28 40
-  0x0F,  // ) 0x29 41
-  0x93,  // * 0x2a 42
-  0x70,  // + 0x2b 43
-  0x0C,  // , 0x2c 44
-  0x40,  // - 0x2d 45
-  0,     // . 0x2e 46 !
-  0x42,  // / 0x2f 47
-
-  0xE7,  // 0 0x30 48
-  0x06,  // 1 0x31 49
-  0x73,  // 2 0x32 50
-  0x57,  // 3 0x33 51
-  0x96,  // 4 0x34 52
-  0xD5,  // 5 0x35 53
-  0xF5,  // 6 0x36 54
-  0x07,  // 7 0x37 55
-  0xF7,  // 8 0x38 56
-  0xD7,  // 9 0x39 57
-
-  0x09,  // : 0x3a 58
-  0x0D,  // ; 0x3b 59
-  0x58,  // < 0x3c 60
-  0x48,  // = 0x3d 61
-  0x4C,  // > 0x3e 62
-  0x53,  // ? 0x3f 63
-  0x5F,  // @ 0x40 64
-
-  0xB7,  // A 0x41 65
-  0xF4,  // B 0x42 66
-  0xE1,  // C 0x43 67
-  0x76,  // D 0x44 68
-  0xF1,  // E 0x45 69
-  0xB1,  // F 0x46 70
-  0xE5,  // G 0x47 71
-  0xB4,  // H 0x48 72
-  0xA0,  // I 0x49 73
-  0x66,  // J 0x4a 74
-  0xB5,  // K 0x4b 75
-  0xE0,  // L 0x4c 76
-  0x25,  // M 0x4d 77
-  0xA7,  // N 0x4e 78
-  0xE7,  // O 0x4f 79
-  0xB3,  // P 0x50 80
-  0x97,  // Q 0x51 81
-  0xA3,  // R 0x52 82
-  0xD5,  // S 0x53 83
-  0xF0,  // T 0x54 84
-  0xE6,  // U 0x55 85
-  0xC6,  // V 0x56 86
-  0xC2,  // W 0x57 87
-  0xB6,  // X 0x58 88
-  0xD6,  // Y 0x59 89
-  0x53,  // Z 0x5a 90
-
-  0x39,  // [ 0x5b 91
-  0x60,  // \ 0x5c 92
-  0x0F,  // ] 0x5d 93
-  0x23,  // ^ 0x5e 94
-  0x08,  // _ 0x5f 95
-  0x02,  // ` 0x60 96
-
-  // 97..122 lowercase
-
-  0x39,  // { 0x7b 123
-  0x06,  // | 0x7c 124
-  0x0F,  // } 0x7d 125
-  0x40,  // ~ 0x7e 126
-};
-
-
-//char textbuff[] = {'N', 'O', 'C', 'E', 'T'};
-char textbuff[] = {"No connection"};
-//char textbuffinput[];
-char text = 'A';
-//String text = "No connection";
-byte text_to_dec_bufer[2000];
-//sizeof(text);
-
-byte numbersArrayIv13[]{
-  0b11100111, //0
-  0b00000110, //1
-  0b01110011, //2
-  0b01010111, //3
-  0b10010110, //4
-  0b11010101, //5
-  0b11110101, //6
-  0b00000111, //7
-  0b11110111, //8
-  0b11010111,//9
-  0b00000000, //10 чисто
-  0b00001000, //11 точка
-  0b11100001, //12 С
-  0b10010011, //13 Градус
-  0b00010000  //14 Минус
-};
-
-
-//const byte cathodeMask[] = {1, 0, 2, 9, 8, 3, 4, 7, 6, 5}; // порядок катодов in14
-// ************************** НАСТРОЙКИ **************************
-#define DUTY 190        // скважность ШИМ. От скважности зависит напряжение! у меня 175 вольт при значении 180 и 145 вольт при 120
-
-// ======================= ЭФФЕКТЫ =======================
-// эффекты перелистывания часов
-byte FLIP_EFFECT = 1;
-// Выбранный активен при запуске и меняется кнопками
-// 0 - нет эффекта
-// 1 - плавное угасание и появление (рекомендуемая скорость: 100-150)
-// 2 - перемотка по порядку числа (рекомендуемая скорость: 50-80)
-// 3 - перемотка по порядку катодов в лампе (рекомендуемая скорость: 30-50)
-// 4 - поезд (рекомендуемая скорость: 50-170)
-// 5 - резинка (рекомендуемая скорость: 50-150)
-byte FLIP_SPEED[] = {0, 20, 40, 100, 9, 100}; // скорость эффектов, мс (количество не меняй) 0, 130, 50, 40, 70, 70
-
-// эффекты подсветки
-byte BACKL_MODE = 0;
-// Выбранный активен при запуске и меняется кнопками
-// 0 - выключена
-// 1 - постоянный свет
-// 2 - палитра PartyColors
-// 3 - палитра RainbowStripeColors
-// 4 - палитра CloudColors
-
-// =======================  ЯРКОСТЬ =======================
-#define NIGHT_START 22      // час перехода на ночную подсветку (BRIGHT_N)
-#define NIGHT_END 8         // час перехода на дневную подсветку (BRIGHT)
-
-#define INDI_BRIGHT 24      // яркость цифр дневная (1 - 24) !на 24 могут быть фантомные цифры!
-#define INDI_BRIGHT_N 2     // яркость ночная (1 - 24)
-
-#define DOT_BRIGHT 40       // яркость точки дневная (1 - 255)
-#define DOT_BRIGHT_N 30     // яркость точки ночная (1 - 255)
-
-#define BACKL_BRIGHT 120    // макс. яркость подсветки дневная (0 - 255)
-#define BACKL_BRIGHT_N 90   // макс. яркость подсветки ночная (0 - 255, 0 - подсветка выключена)
-
-// =======================  ГЛЮКИ =======================
-#define GLITCH_MIN 3//30       // минимальное время между глюками, с
-#define GLITCH_MAX 6//120      // максимальное время между глюками, с
-
-#define train_MIN 20       // минимальное время между поездом, с 180
-#define train_MAX 40      // максимальное время между поездом, с 300
-
-#define test_MIN 180      // минимальное время между перебором индикаторов, с 300
-#define test_MAX 300      // максимальное время между перебором индикаторов, с 600
-
-// ======================  МИГАНИЕ =======================
-#define DOT_TIME 500        // время мигания точки, мс
-#define DOT_TIMER 20        // шаг яркости точки, мс
-
-// ==================  АНТИОТРАВЛЕНИЕ ====================
-#define BURN_TIME 10        // период обхода индикаторов в режиме очистки, мс
-#define BURN_LOOPS 3        // количество циклов очистки за каждый период
-#define BURN_PERIOD 15      // период антиотравления, минут
-// *********************** ДЛЯ РАЗРАБОТЧИКОВ ***********************
-byte FLIP_EFFECT_NUM = 4;//sizeof(FLIP_SPEED);   // количество эффектов
-//boolean flipIndics[6];
-//byte newTime[6];
-unsigned long previousMillis;
-
-timerMinim dotTimer(1000);                      // полсекундный таймер для часов
-//timerMinim dotBrightTimer(60);          // таймер шага яркости точки
-//timerMinim ReadTime(100);                // полсекундный таймер для часов
-timerMinim secondtimer(2000); //Таймер для смены эффектов
-timerMinim timerTIME(40);
-timerMinim Datetimer(5000); //Таймер для вывода даты
-timerMinim dotBrightTimer(DOT_TIMER);    // таймер шага яркости точки
-timerMinim backlBrightTimer(30);         // таймер шага яркости подсветки
-//timerMinim almTimer((long)ALM_TIMEOUT * 1000); // таймер работы будильника 30сек если ALM_TIMEOUT=30
-timerMinim flipTimer(FLIP_SPEED[FLIP_EFFECT]); // таймер резинки
-timerMinim glitchTimer(1000); //таймер для глюков
-timerMinim blinkTimer(250); // таймер мигания цифры в настройках
-timerMinim ligtSensorTimer(100); // таймер мигания цифры в настройках
-timerMinim RandomTimer(150);
-timerMinim TestTimer(3000); //  тестирование индикаторов. 3000
-timerMinim trainTimer(300); // и для поезда
-timerMinim modeTimer((long)60 * 1000);
-timerMinim modeTimerP((long)202 * 1000);
-timerMinim SensorTimerI2C(500); // Время обновления датчиков и яркости индикаторов
-
-
-
-
-
-volatile int8_t indiDimm[24];      // величина диммирования (0-24)
-volatile int8_t indiCounter[6];   // счётчик каждого индикатора (0-24)
-volatile int8_t indiDigits[6];    // цифры, которые должны показать индикаторы (0-10)
-volatile int8_t curIndi;          // текущий индикатор (0-5)
-boolean dotFlag, TrainFlag = true, TestFlag = true; //!
-//int8_t hrs, mins, secs, mnth, days, year, weekdays;
-//int8_t alm_hrs, alm_mins;
-//int8_t mode = Clock;    // 0 часы, 1 температура, 2 настройка будильника, 3 настройка часов, 4 аларм
-boolean changeFlag;
-boolean blinkFlag;
-boolean minus;
-byte indiMaxBright = INDI_BRIGHT, dotMaxBright = DOT_BRIGHT, backlMaxBright = BACKL_BRIGHT;
-boolean alm_flag = 0;
-boolean dotBrightFlag, dotBrightDirection, backlBrightFlag, backlBrightDirection, indiBrightDirection;
-int dotBrightCounter, backlBrightCounter, indiBrightCounter, indiBrightCounterMinus, indiBrightCounterPlus;
-byte dotBrightStep;
-boolean newTimeFlag = true;
-boolean flipFlag = true;
-boolean flipIndics[6];
-int32_t newTime[6];
-int32_t Bufer[6];
-byte oldTime[6];
-boolean flipInit, flipInit4;
-byte startCathode[4], endCathode[4];
-byte glitchCounter, glitchMax, glitchIndic;
-boolean glitchFlag, indiState;
-byte curMode = 0;
-byte currentDigit = 0;
-int8_t changeHrs, changeMins, changeSecs,  changeDays, changeMonth, changeYear;
-boolean lampState = false;
-boolean anodeStates[] = {1, 1, 1, 1, 1, 1};
-boolean dotsFlag = false;
-
-byte RandomOnOff[6] = {0, 1, 2, 3, 4, 5};//Храним вычислиные значение порядка появления анодов
-byte lightValue[4] = {21, 28, 24, 21};
-byte brightValue[4] = {2,10,18,24};
-byte is,js;
-boolean RandomAnodesFlag, RandomDirection=true;
-boolean RandomAnodesOn=false;
-byte currentLamp, flipEffectStages, testIndicator;
-byte CounterAn=0;
-bool trainLeaving = true;
-uint8_t colorIndex;
-unsigned long effect_timer;
-boolean ZoneCounter = false; // для "перевода часов"
-int8_t LampDots;
-byte DotsLR=1;
-byte k = 1;
-boolean DotRun, DotDirection = false;
-boolean TrainOn = false;
-boolean TrainDirection = true;
-byte al,bl,cl;//борьба с дребезгом сенсора
-int vemlvalue, vemllux;
-float bmevalue, bmehumudity, bmepressure, bmetemperature, altitude;
-byte decToBcd(byte val) {
-  return ( (val / 10 * 16) + (val % 10) );
-} 
-byte bcdToDec(byte val) {
-  return ( (val / 16 * 10) + (val % 16) );
-}
-
-
-
-// переменные
-int valNum;
-String valPass;
-int valSlider;
-float valSpin;
-GPdate valDate;
-GPtime valTime;
-GPcolor valCol;
-int valSelect;
-int valRad;
+#include <setting.h>
 
 uint8_t getCharCode(char symb) {
   if (symb < 32 || symb > 126) return 0;
@@ -384,56 +7,7 @@ uint8_t getCharCode(char symb) {
       if (symb <= 122) symb -= 32;  // to lowercase
       else symb -= 26;              // 123..126
   }
-  return _segCharMap[symb - 32];
-}
-
-// отправить на индикаторы
-void sendTime(byte hours, byte minutes, byte seconds) {
-
-  indiDigits[0] = (byte)hours / 10;
-  indiDigits[1] = (byte)hours % 10;
-
-  indiDigits[4] = (byte)seconds / 10;
-  indiDigits[5] = (byte)seconds % 10;
-  
-  indiDigits[2] = (byte)minutes / 10;
-  indiDigits[3] = (byte)minutes % 10;
-}
-
-void setNewTime() {
-
-  /*
-  newTime[0] = newhour / 10;
-  newTime[1] = newhour % 10;
-  newTime[2] = newminute / 10;
-  newTime[3] = newminute % 10;
-  newTime[4] = newsecond / 10;
-  newTime[5] = newsecond % 10;
-
-int num = 4;
-char cstr[16];
-itoa(num, cstr, DEC);
-sprintf(cstr, "%05d", num);
--> "01234"
-sprintf_P(cstr, (PGM_P)F("%05d"), num);//Перевод из в числа в char
--> "01234"
-*/
-
-//-> "03:23:11"
-
-//textbuff[0] = cstr[0];
-//textbuff[1] = 'B';
-//textbuff[2] = 'C';
-//textbuff[3] = (char)(newminute % 10);
-//textbuff[4] = (char)(newsecond / 10);
-//textbuff[5] = (char)(newsecond % 10);
-
-  byte sizet = sizeof(textbuff);
-  byte i;
-  for(i=0; i<=sizet; i++){
-  //text=textbuff[i];
-  text_to_dec_bufer[i] = getCharCode(textbuff[i]); 
-  }
+  return pgm_read_byte(_segCharMap + (symb - 32));
 }
 
 void TimeUpdate(){
@@ -442,12 +16,16 @@ void TimeUpdate(){
     hour = timeClient.getHours();
     minute = timeClient.getMinutes();
     second = timeClient.getSeconds();
-  
- 
     }
 }
 
-
+//обновляем часовой пояс 
+void NTPClientUpdate(){
+  utcOffsetInSeconds=3600*mydata.GMT;
+  timeClient.setPoolServerName(mydata.NTPserver);
+  timeClient.setTimeOffset(utcOffsetInSeconds);
+  TimeUpdate();
+}
 
 String httpGETRequest(const char* serverName) {
   HTTPClient http;
@@ -475,8 +53,12 @@ String httpGETRequest(const char* serverName) {
   return payload;
 }
 
+#include "getCrypto.h"
+#include "getTemp.h"
+#include "calcTime.h"
+
 bool initWiFi() { //Функция инициализации wifi
-  if(lp.ssid==""){//|| ip==""
+  if(mydata.ssid==""){//|| ip==""
     Serial.println("Не определен SSID ");
     return false;
   }
@@ -491,15 +73,15 @@ bool initWiFi() { //Функция инициализации wifi
     return false;
   }
 */
-  WiFi.begin(lp.ssid, lp.pass);
+  WiFi.begin(mydata.ssid, mydata.pass);
   Serial.println("Подключаемся к WiFi...");
 
   unsigned long currentMillis = millis();
   previousMillis = currentMillis;
-
+//Если в течении 10сек нет подключения к вайфай создаем точку доступа
   while(WiFi.status() != WL_CONNECTED) {
     currentMillis = millis();
-    if (currentMillis - previousMillis >= 10000) {
+    if (currentMillis - previousMillis >= 100) {
       Serial.println("Ошибка подключения к WIFI");
       return false;
     }
@@ -507,55 +89,147 @@ bool initWiFi() { //Функция инициализации wifi
   Serial.println(WiFi.localIP());
   return true;
 }
+void ConnectionToServices(){
+  timeClient.begin();
+  NTPClientUpdate();
+  getTemp();
+  getCrypto();
+  }
+//Инициализация WiFI
+void WiFiConnect_APcreate(){
+if(initWiFi()) {
+  Serial.print ("WiFi успешно подключен");
+  //подключаемся к сервисам
+  ConnectionToServices();
+}
+else{
+// запускаем точку доступа если нет подключения
+  Serial.println ("WiFi не подключен, создаем точку");
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP("IV13-CONNECT");
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP); 
+  timerTIME.stop();
+  mydata.display=4;
+ 
+  //bufferer=text2.c_str();
+  //text2.toCharArray(bufferer, sizeof(text2));
+  sprintf_P(textbuffer, (PGM_P)F("%S"), lost.c_str());//Заносим в буфер
 
+  Serial.println(lost.length());
+}
+}
 
+void OtaUpdate(){
+  //Обновление по воздуху   
+  ArduinoOTA.setHostname("ESP32");
 
-//#include "sensor.h"
-#include "getCrypto.h"
-#include "getTemp.h"
-#include "calcTime.h"
-//#include "effects.h"
+  ArduinoOTA.onStart([]() {
+  	String type;
+  	if (ArduinoOTA.getCommand() == U_FLASH)
+    	type = "sketch";
+  	else // U_SPIFFS
+    	type = "filesystem";
 
-// динамическая индикация 
+  	// NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+  	Serial.println("Start updating " + type);
+	})
+	.onEnd([]() {
+  	Serial.println("\nEnd");
+	})
+	.onProgress([](unsigned int progress, unsigned int total) {
+  	Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+	})
+	.onError([](ota_error_t error) {
+  	Serial.printf("Error[%u]: ", error);
+  	if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+  	else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+  	else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+  	else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+  	else if (error == OTA_END_ERROR) Serial.println("End Failed");
+	});
+     
+  ArduinoOTA.begin();
+                
+  Serial.println("Ready");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  //Обновление по воздуху 
+}
+//переводим символы из char в десятичные
+void set_dec_buffer() {
+  for(byte i=0; i<=5; i++){
+  dec_buffer[i] = getCharCode(buffer[i]); 
+  }
+}
+
+void RunDots(){
+//Случайное переключение точек раз в минуту
+if (mydata.sw1==true&&DotRandomTimer.isReady()) mydata.modedots = random(0, 2);
+
+switch (mydata.modedots)
+{
+case 0:
+//Первый режим последовательное переключение точек по лампам вперед и обратно
+if ((mydata.display == 0) && timeon)
+{
+  if (DotTimer.isReady())
+  {
+    if (dmooveright) dmoove++;
+    if (dmooveleft)  dmoove--;
+    if (dmoove >= 5)
+    {
+      dmoove = 5;
+      dmooveleft = true;
+      dmooveright = false;
+    }
+    if (dmoove <= 0)
+    {
+      dmoove = 0;
+      dmooveleft = false;
+      dmooveright = true;
+    }
+  }
+  dec_buffer[dmoove]|=0b00001000;
+}
+  break;
+
+case 1:
+//Второй режим одновременное мигание в 3 и 4 индикаторе при увеличении на 1 сек
+if ((mydata.display == 0) && timeon)
+{
+    if (second & 0x01){//если не четная секунда
+    dec_buffer[3]|=0b00001000;
+    dec_buffer[2]|=0b00001000;
+    }
+}
+  break;
+  case 2:
+//Третий режим попеременное мигание в 3 и 4 индикаторе при увеличении на 1 сек
+if ((mydata.display == 0) && timeon)
+{
+    if (second & 0x01) dec_buffer[2]|=0b00001000;
+    else dec_buffer[3]|=0b00001000;
+}
+  break;
+}
+
+}
+
+// Отпраляем данные по SPI на tpic6b595
 void UpdateDisplay() {
-/*
-  NewTime[5] = sec % 10;
-  //NewTime[4] = sec % 100 / 10;
-  NewTime[4] = sec / 10;
-  NewTime[3] = min % 10;
-  NewTime[2] = min / 10;
-  NewTime[1] = hor % 10;
-  NewTime[0] = hor / 10;
-*/  
-
-
-
-
+  RunDots();
+  
 hspi->beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE3));
 CS_OFF_HSPI;
 
-/*
-hspi->transfer(numbersArrayIv13[newTime[5]]);
-hspi->transfer(numbersArrayIv13[newTime[4]]);
-hspi->transfer(numbersArrayIv13[newTime[3]]);
-hspi->transfer(numbersArrayIv13[newTime[2]]);
-hspi->transfer(numbersArrayIv13[newTime[1]]);
-hspi->transfer(numbersArrayIv13[newTime[0]]);
-*/
-
-//text_to_dec_bufer[0]=getCharCode('C');
-
-hspi->transfer(text_to_dec_bufer[5]);
-hspi->transfer(text_to_dec_bufer[4]);
-hspi->transfer(text_to_dec_bufer[3]);
-hspi->transfer(text_to_dec_bufer[2]);
-hspi->transfer(text_to_dec_bufer[1]);
-hspi->transfer(text_to_dec_bufer[0]);
-
-
+for(byte i=5; i>0; i--){
+  hspi->transfer(dec_buffer[i]);
+}
 hspi->endTransaction();
 CS_ON_HSPI;
-//for (int i=0; i < 6; i++) newTime[i]=10;
+
 }
 
 void Task0( void *pvParameters );
