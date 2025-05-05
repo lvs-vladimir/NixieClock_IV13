@@ -34,7 +34,10 @@ void setup() {
   Serial.println(mydata.pass);
   Serial.println(mydata.owCity);
   Serial.println(mydata.owMapApiKey);
-
+  //Serial.println(mydata.NarodmoonApi);
+ // Serial.println(mydata.NarodmoonID);
+  Serial.println(mydata.NarodmoonApiMD5);
+  TempValue=mydata.displaytemperature;
   WiFiConnect_APcreate();
 /*else  WiFi.begin(lp.ssid, lp.pass);
   //WiFi.begin(ssid, password); //Wifi  
@@ -108,9 +111,12 @@ void setup() {
   xTaskCreatePinnedToCore(
         Task1,   /* Функция задачи */
         "Task_1",     /* Название задачи */
-        10000,       /* Размер стека задачи */
+        30000,       /* Размер стека задачи */
         NULL,        /* Параметр задачи */
-        2,           /* Приоритет задачи 0-низкий 3-высокий */
+        3,           /* Приоритет задачи 0-низкий 3-высокий */
         NULL,      /* &Task1 Идентификатор задачи, чтобы ее можно было отслеживать */
         1);          /* Ядро для выполнения задачи (1) */
-}
+
+
+        ConnectionToServices();
+      }

@@ -1,53 +1,135 @@
 
-
+/*
 void getTemp(){
 
-String serverPath = "http://api.openweathermap.org/data/2.5/weather?q=" + (String)mydata.owCity + "&APPID=" + (String)mydata.owMapApiKey +"&units=metric";
+int8_t tempGetTemp;
 
-//String jsonBuffer;
+String serverPath = "http://api.openweathermap.org/data/2.5/weather?q=" + (String)mydata.owCity + "&APPID=" + (String)mydata.owMapApiKey +"&units=metric";
 String jsonBuffer = httpGETRequest(serverPath.c_str());
-//Serial.println(jsonBuffer);
 JSONVar myObject = JSON.parse(jsonBuffer);
-//String tempstring1 = myObject["main"]["temp"]; 
 int temperature = myObject["main"]["feels_like"]; 
 
-//float tempstring1 = Serial.println(myObject["main"]["temp"]);
-//Serial.println(tempstring1);
-//float temperature = tempstring;
-//Serial.println(temperature);
  if (temperature>=0) {TempValue = int(temperature); minus=false;}
  else {TempValue = int(temperature*-1); minus=true;}//Если отрицательное преобразуем в положительное значение для корректного отображения.
+ //Serial.println("OP: "+ TempValue);
 
-      //Serial.println(myObject["main"]["pressure"]);
-      //Serial.println(myObject["main"]["humidity"]);
-      //Serial.println(myObject["wind"]["speed"]);
-/* 
-HTTPClient temp;
-temp.begin("http://narodmon.ru/api/sensorsOnDevice?id="+TempSensorId+"&uuid="+UUID+"&api_key="+NarodMonApiKey+"&lang=ru");
-//http.begin("http://narodmon.ru/api/sensorsOnDevice?id=6678&uuid=004f8154a800615565d1c35fca92f621&api_key=eyQhbFzr8XBmm&lang=ru");
-int httpCode = temp.GET();                                                                  //Send the request
- 
-if (httpCode > 0) { //не пустое
- 
-String payload = temp.getString();   //Get the request response payload   
+}
+ */
+//***************Получаем темперутуру с openweathermap.org и narodmon.ru**********************************
+void getTemp2(byte i){
 
-  //https://arduinojson.org/v5/assistant/
+  String serverPath;
+  if (i==0) serverPath = "https://api.openweathermap.org/data/2.5/weather?q=" + (String)mydata.owCity + "&APPID=" + (String)mydata.owMapApiKey +"&units=metric";
   
-  //const size_t capacity = JSON_ARRAY_SIZE(3) + 3*JSON_OBJECT_SIZE(11) + JSON_OBJECT_SIZE(15) + 580;
-  DynamicJsonBuffer jsonBuffer;//(capacity);
-  JsonObject& root = jsonBuffer.parseObject(payload);
-  JsonArray& sensors = root["sensors"];
-  JsonObject& sensor1 = sensors[0];
-  float temperature = round(sensor1["value"]); 
+  else if (i==1) serverPath = "https://narodmon.ru/api/sensorsOnDevice?id="+(String)mydata.NarodmoonID+"&uuid="+(String)mydata.NarodmoonApiMD5+"&api_key="+(String)mydata.NarodmoonApi+"&lang=ru";
+  else if (i>1) return;
+  String jsonBuffer = httpGETRequest(serverPath.c_str());
+  JSONVar myObject = JSON.parse(jsonBuffer);
+  if (i==0) {
+    byte j=4;
+    while (j<=6) {
+      SensorsAutoShow[j]="";//очистка
+      SensorsDisplay[j]="";//очистка
+      j++;
+    }
+        optemperature = myObject["main"]["temp"];
+        oppressure = myObject["main"]["pressure"];
+        ophumidity = myObject["main"]["humidity"];
 
- if (temperature>=0) {TempValue = int(temperature); minus=false;}
- else {TempValue = int(temperature*-1); minus=true;}//Если отрицательное преобразуем в положительное значение для корректного отображения.
-}
+        SensorsAutoShow[4]+=",";
+        SensorsAutoShow[4]+="OP ";
+        SensorsAutoShow[4]+=optemperature;
+        SensorsAutoShow[4]+=" °";
+    
+        SensorsAutoShow[5]+=",";
+        SensorsAutoShow[5]+="OP ";
+        SensorsAutoShow[5]+=oppressure;
+        SensorsAutoShow[5]+=" mm Hg";
+  
+        SensorsAutoShow[6]+=",";
+        SensorsAutoShow[6]+="OP ";
+        SensorsAutoShow[6]+=ophumidity;
+        SensorsAutoShow[6]+=" %";
+  
+    
+        SensorsDisplay[4]+=optemperature;
+        SensorsDisplay[4]+="°";
+
+      
+        SensorsDisplay[5]+=oppressure;
+        SensorsDisplay[5]+="mHg";
+
  
-temp.end();   //
-*/ 
-}
+        SensorsDisplay[6]+=ophumidity;
+        SensorsDisplay[6]+="%";
 
+        Serial.print("OP: ");
+        Serial.println(optemperature);
+        Serial.println(oppressure);
+        Serial.println(ophumidity);
+
+  }
+  if (i==1) {
+    byte j=0;
+    while (j<=3) {
+      SensorsAutoShow[j]="";//очистка
+      SensorsDisplay[j]="";//очистка
+      j++;
+    }
+    byte f=0;
+    while (f<=20) {
+      SensorsNarodMon[f]="";//очистка
+      f++;
+    }
+    for(byte i=0; i<=3; i++){
+    //String a = myObject["sensors"][mydata.nrd_sens[i]]["name"];
+     int b= myObject["sensors"][mydata.nrd_sens[i]]["value"];
+     String c = myObject["sensors"][mydata.nrd_sens[i]]["unit"];
+
+     if (c.length()!=0){
+     //sprintf_P(Sensors2[mydata.nrd_sens[i]],(PGM_P)F("%02d %S"), b,c.c_str());
+//Создаем вспомогательный строковый массив для вывода в SELECT
+      SensorsAutoShow[mydata.nrd_sens[i]]+=",";
+      SensorsAutoShow[mydata.nrd_sens[i]]+="Nrd ";
+      SensorsAutoShow[mydata.nrd_sens[i]]+=b;
+      SensorsAutoShow[mydata.nrd_sens[i]]+=" ";
+      SensorsAutoShow[mydata.nrd_sens[i]]+=c;
+
+  //Создаем вспомогательный строковый массив для вывода в Лейблы настроек narodmon
+      SensorsNarodMon[mydata.nrd_sens[i]]+= SensorsAutoShow[mydata.nrd_sens[i]];
+
+//Создаем вспомогательный строковый массив для вывода на дисплей без доп инфы
+      SensorsDisplay[mydata.nrd_sens[i]]+=b;
+      SensorsDisplay[mydata.nrd_sens[i]]+=c;
+
+      //Serial.print("AutoShow: "); Serial.println(SensorsAutoShow[i]);
+      Serial.print("NAROD: ");
+      //Serial.println(Sensors2[mydata.nrd_sens[i]]);
+     }
+     else {   
+      Serial.print("ПУСТО: "); Serial.println(i);}
+     Serial.print("Длинна: "); Serial.println(c.length()); 
+     
+     
+    }
+      //narodhumidity = myObject["sensors"][0]["value"];
+     // narodpressure = myObject["sensors"][1]["value"];
+      
+      //Serial.println(mydata.Sensors[0]);
+      //Serial.println(mydata.Sensors[1]);
+      //Serial.println(a);
+      //Serial.println(narodhumidity);
+      //Serial.println(narodpressure);
+      //Serial.println(a.c_str());
+
+  }
+  //else return 0;
+  
+  // int temperature; if (temperature>=0) {tempGetTemp = int(temperature); minus=false;}
+  // else {tempGetTemp = int(temperature*-1); minus=true;}//Если отрицательное преобразуем в положительное значение для корректного отображения.
+
+  }
+  
 
 
 

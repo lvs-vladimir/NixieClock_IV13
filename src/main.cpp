@@ -1,6 +1,13 @@
 #include <Arduino.h>
 #include <setting.h>
 
+//Рассчет md5 ключа api для narodmon обязательный параметр для GET запроса
+void md5 (char* apimd5){
+  unsigned char* hash = MD5::make_hash(apimd5);
+  char *md5str = MD5::make_digest(hash, 16);
+  sprintf_P(mydata.NarodmoonApiMD5, (PGM_P)F("%S"), md5str);
+}
+//Функция возврата десятичного представления символа
 uint8_t getCharCode(char symb) {
   if (symb < 32 || symb > 126) return 0;
   if (symb >= 97) {
@@ -18,7 +25,11 @@ void TimeUpdate(){
     second = timeClient.getSeconds();
     }
 }
-
+void ValueTempUpdate(){
+  if (mydata.displaytemperature==0) TempValue=bmetemperature;
+  if (mydata.displaytemperature==1) TempValue=narodtemperature;
+  if (mydata.displaytemperature==2) TempValue=optemperature;
+}
 //обновляем часовой пояс 
 void NTPClientUpdate(){
   utcOffsetInSeconds=3600*mydata.GMT;
@@ -29,18 +40,10 @@ void NTPClientUpdate(){
 
 String httpGETRequest(const char* serverName) {
   HTTPClient http;
-
-  // Your IP address with path or Domain name with URL path 
   http.begin(serverName);
-
-  // Send HTTP POST request
   int httpResponseCode = http.GET();
-
   String payload = "{}"; 
-
   if (httpResponseCode>0) {
-   // Serial.print("HTTP Response code: ");
-   // Serial.println(httpResponseCode);
     payload = http.getString();
   }
   else {
@@ -49,7 +52,6 @@ String httpGETRequest(const char* serverName) {
   }
   // Free resources
   http.end();
-
   return payload;
 }
 
@@ -81,7 +83,7 @@ bool initWiFi() { //Функция инициализации wifi
 //Если в течении 10сек нет подключения к вайфай создаем точку доступа
   while(WiFi.status() != WL_CONNECTED) {
     currentMillis = millis();
-    if (currentMillis - previousMillis >= 100) {
+    if (currentMillis - previousMillis >= 10000) {
       Serial.println("Ошибка подключения к WIFI");
       return false;
     }
@@ -92,15 +94,16 @@ bool initWiFi() { //Функция инициализации wifi
 void ConnectionToServices(){
   timeClient.begin();
   NTPClientUpdate();
-  getTemp();
+  if (strlen(mydata.owMapApiKey)>0&&strlen(mydata.owCity)>0) getTemp2(0);
   getCrypto();
-  }
+  if (strlen(mydata.NarodmoonApi)>0&&strlen(mydata.NarodmoonID)>0) getTemp2(1);
+}
 //Инициализация WiFI
 void WiFiConnect_APcreate(){
 if(initWiFi()) {
-  Serial.print ("WiFi успешно подключен");
+  Serial.println ("WiFi успешно подключен");
   //подключаемся к сервисам
-  ConnectionToServices();
+ 
 }
 else{
 // запускаем точку доступа если нет подключения
@@ -166,9 +169,9 @@ void set_dec_buffer() {
 
 void RunDots(){
 //Случайное переключение точек раз в минуту
-if (mydata.sw1==true&&DotRandomTimer.isReady()) mydata.modedots = random(0, 2);
+if (mydata.dots_switch==true&&DotRandomTimer.isReady()) mydata.animdots = random(0, 2);
 
-switch (mydata.modedots)
+switch (mydata.animdots)
 {
 case 0:
 //Первый режим последовательное переключение точек по лампам вперед и обратно
@@ -222,14 +225,17 @@ void UpdateDisplay() {
   RunDots();
   
 hspi->beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE3));
-CS_OFF_HSPI;
 
-for(byte i=5; i>0; i--){
+int8_t i=5;
+while (i>-1)
+{
   hspi->transfer(dec_buffer[i]);
+  i--;
 }
+
 hspi->endTransaction();
 CS_ON_HSPI;
-
+CS_OFF_HSPI;
 }
 
 void Task0( void *pvParameters );
