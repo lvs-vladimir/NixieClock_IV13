@@ -60,6 +60,7 @@ void setup() {
   ui.attach(action);
   ui.start();
   ui.log.start(30);   // размер буфера
+  
   ui.enableOTA();   // без пароля
   //ui.enableOTA("admin", "pass");  // с паролем
  
@@ -84,7 +85,7 @@ void setup() {
   ledcWrite(PWM_CHANNEL, 200);
   
   //Подключение i2c датчиков с выводом значений
-  bme.begin(0x76);
+ if (bme.begin(0x76)) ;
   veml.begin();
   veml.setLowThreshold(10000);
   veml.setHighThreshold(20000);
@@ -111,12 +112,9 @@ void setup() {
   xTaskCreatePinnedToCore(
         Task1,   /* Функция задачи */
         "Task_1",     /* Название задачи */
-        30000,       /* Размер стека задачи */
+        10000,       /* Размер стека задачи */
         NULL,        /* Параметр задачи */
         3,           /* Приоритет задачи 0-низкий 3-высокий */
         NULL,      /* &Task1 Идентификатор задачи, чтобы ее можно было отслеживать */
         1);          /* Ядро для выполнения задачи (1) */
-
-
-        ConnectionToServices();
       }

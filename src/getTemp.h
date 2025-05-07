@@ -37,29 +37,27 @@ void getTemp2(byte i){
         ophumidity = myObject["main"]["humidity"];
 
         SensorsAutoShow[4]+=",";
-        SensorsAutoShow[4]+="OP ";
+       // SensorsAutoShow[4]+="OP ";
         SensorsAutoShow[4]+=optemperature;
-        SensorsAutoShow[4]+=" °";
+        SensorsAutoShow[4]+="*";
     
         SensorsAutoShow[5]+=",";
-        SensorsAutoShow[5]+="OP ";
+      //  SensorsAutoShow[5]+="OP ";
         SensorsAutoShow[5]+=oppressure;
-        SensorsAutoShow[5]+=" mm Hg";
+        SensorsAutoShow[5]+="mHg";
   
         SensorsAutoShow[6]+=",";
-        SensorsAutoShow[6]+="OP ";
+       // SensorsAutoShow[6]+="OP ";
         SensorsAutoShow[6]+=ophumidity;
-        SensorsAutoShow[6]+=" %";
+        SensorsAutoShow[6]+="%";
   
-    
+        SensorsDisplay[4]+=",";
         SensorsDisplay[4]+=optemperature;
-        SensorsDisplay[4]+="°";
-
-      
+        SensorsDisplay[4]+="*";
+        SensorsDisplay[5]+=",";
         SensorsDisplay[5]+=oppressure;
         SensorsDisplay[5]+="mHg";
-
- 
+        SensorsDisplay[6]+=",";
         SensorsDisplay[6]+=ophumidity;
         SensorsDisplay[6]+="%";
 
@@ -78,7 +76,7 @@ void getTemp2(byte i){
     }
     byte f=0;
     while (f<=20) {
-      SensorsNarodMon[f]="";//очистка
+      //SensorsNarodMon[f]="";//очистка
       f++;
     }
     for(byte i=0; i<=3; i++){
@@ -89,18 +87,15 @@ void getTemp2(byte i){
      if (c.length()!=0){
      //sprintf_P(Sensors2[mydata.nrd_sens[i]],(PGM_P)F("%02d %S"), b,c.c_str());
 //Создаем вспомогательный строковый массив для вывода в SELECT
-      SensorsAutoShow[mydata.nrd_sens[i]]+=",";
-      SensorsAutoShow[mydata.nrd_sens[i]]+="Nrd ";
-      SensorsAutoShow[mydata.nrd_sens[i]]+=b;
-      SensorsAutoShow[mydata.nrd_sens[i]]+=" ";
-      SensorsAutoShow[mydata.nrd_sens[i]]+=c;
-
-  //Создаем вспомогательный строковый массив для вывода в Лейблы настроек narodmon
-      SensorsNarodMon[mydata.nrd_sens[i]]+= SensorsAutoShow[mydata.nrd_sens[i]];
-
+      if(c=="°") {c=""; c+="*";}
+      SensorsAutoShow[i]+=",";
+      //SensorsAutoShow[i]+="Nrd ";     
+      SensorsAutoShow[i]+=b;
+      SensorsAutoShow[i]+=c;
 //Создаем вспомогательный строковый массив для вывода на дисплей без доп инфы
-      SensorsDisplay[mydata.nrd_sens[i]]+=b;
-      SensorsDisplay[mydata.nrd_sens[i]]+=c;
+    //  SensorsDisplay[i]+=",";
+      SensorsDisplay[i]+=b;
+      SensorsDisplay[i]+=c;
 
       //Serial.print("AutoShow: "); Serial.println(SensorsAutoShow[i]);
       Serial.print("NAROD: ");

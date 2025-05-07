@@ -33,12 +33,12 @@ struct Data {
   byte display, mode, animdots, modetime, lng, 
   displaypressure, displayhumidity, displaytemperature;
   int GMT;
-  boolean dots_switch, seconds_switch, autoshow_switch, sw1,sw2,sw3,sw4,sw5;
+  boolean dots_switch, seconds_switch, autoshow_switch, random_autoshow_switch, sw1,sw2,sw3,sw4,sw5;
   bool dispset[7] = {true, true, true, true, true, true, true};
   byte nrd_sens0,nrd_sens1,nrd_sens2;
-  byte nrd_sens[6];//номер датчика narodmon
+  byte nrd_sens[5];//номер датчика narodmon
   byte nrd_type_sensor[6];
-  byte autoshow_min,autoshow_select[6],autoshow_select_sec[6];
+  byte autoshow_min,autoshow_select[6],autoshow_select_sec[6], autoshow_animations_select;
   
   
 };
@@ -93,7 +93,7 @@ static const uint8_t _segCharMap[] PROGMEM = {
   0x22,  // " 0x22 34
   0x36,  // # 0x23 35
   0x69,  // $ 0x24 36
-  0x2D,  // % 0x25 37
+  0xC5,  // % 0x25 37
   0x7B,  // & 0x26 38
   0x20,  // ' 0x27 39
   0x39,  // ( 0x28 40
@@ -164,6 +164,8 @@ static const uint8_t _segCharMap[] PROGMEM = {
   0x06,  // | 0x7c 124
   0x0F,  // } 0x7d 125
   0x40,  // ~ 0x7e 126
+//127....175
+  0x93,  // ° 176 знак градуса 69 место
 };
 
 
@@ -171,13 +173,18 @@ static const uint8_t _segCharMap[] PROGMEM = {
 char buffer[100];
 char textbuffer[100];
 char Sensors2[6][40] PROGMEM;
-char SensorsAutoShowSelect[100];
+//char SensorsAutoShowSelect[100];
 
 String lost= "WIFI lost please connect to 192-168-4-1      ";
-String SensorsNarodMon[20];
+//String SensorsNarodMon[20];
 String SensorsAutoShow[20];
 String SensorsDisplay[20];
+String SensorsDisplayBme[3];
+String SensorsDisplayOp[3];
+String SensorsDisplayNarod[3];
+String SensorsAutoShowSelect;
 String SensorsAutoShowSelect2;
+
 byte dec_buffer[6];
 
 byte FLIP_EFFECT_NUM = 4;//sizeof(FLIP_SPEED);   // количество эффектов

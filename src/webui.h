@@ -90,7 +90,6 @@ GP.BLOCK_END();
   
       // главная страница, корень, "/"
     } else {
-
     //*******************Начало вкладки HOME***********************************************************
     //Блок для вывода BME280
   GP.BLOCK_THIN_BEGIN();
@@ -113,20 +112,24 @@ GP.BLOCK_END();
      
      GP.BLOCK_THIN_BEGIN();
      M_BOX(GP_CENTER, GP.LABEL(DISPLAY_DATA_LABEL[mydata.lng]);); 
+ 
+     GP.HR(); 
+     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DATA_SHOW_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("auto_show_switch", mydata.autoshow_switch, GP_BLUE); GP.SPINNER("autoshow_min", mydata.autoshow_min, 0, 20, 1, 0, GP_BLUE, "50px", 0); ); );
+     GP.BREAK();
+     M_BOX(GP_LEFT, GP.LABEL("1:"); GP.SELECT("s_a_s0", SensorsAutoShowSelect2, mydata.autoshow_select[0], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec0", mydata.autoshow_select_sec[1], 0, 30, 1, 0, GP_BLUE, "50px", 0); ); );
+     M_BOX(GP_LEFT, GP.LABEL("2:"); GP.SELECT("s_a_s1", SensorsAutoShowSelect2, mydata.autoshow_select[1], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec1", mydata.autoshow_select_sec[2], 0, 30, 1, 0, GP_BLUE, "50px", 0); ); );
+     M_BOX(GP_LEFT, GP.LABEL("3:"); GP.SELECT("s_a_s2", SensorsAutoShowSelect2, mydata.autoshow_select[2], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec2", mydata.autoshow_select_sec[3], 0, 30, 1, 0, GP_BLUE, "50px", 0); ); );
+     M_BOX(GP_LEFT, GP.LABEL("4:"); GP.SELECT("s_a_s3", SensorsAutoShowSelect2, mydata.autoshow_select[3], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec3", mydata.autoshow_select_sec[4], 0, 30, 1, 0, GP_BLUE, "50px", 0); ); );
+     M_BOX(GP_LEFT, GP.LABEL("5:"); GP.SELECT("s_a_s4", SensorsAutoShowSelect2, mydata.autoshow_select[4], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec4", mydata.autoshow_select_sec[5], 0, 30, 1, 0, GP_BLUE, "50px", 0); ); );
+     M_BOX(GP_LEFT, GP.LABEL("6:"); GP.SELECT("s_a_s5", SensorsAutoShowSelect2, mydata.autoshow_select[5], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec5", mydata.autoshow_select_sec[6], 0, 30, 1, 0, GP_BLUE, "50px", 0); ); );
+     GP.BREAK();
+     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_ANIMATION_AUTOSHOW_NAME[mydata.lng]); M_BOX(GP_RIGHT, GP.SELECT("autoshow_animations_select", DISPLAY_AUTOSHOW_ANIMATION_SELECT[mydata.lng], mydata.autoshow_animations_select, 0,0,1); ); ); 
+     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DOTS_RANDOM_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("random_autoshow_switch", mydata.random_autoshow_switch, GP_BLUE); ); );
      GP.HR(); 
      M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DOTS_NAME[mydata.lng]); M_BOX(GP_RIGHT, GP.SELECT("animations_dots", DISPLAY_DOTS_ANIMATIONS[mydata.lng], mydata.animdots, 0,0,1); ); ); 
      M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DOTS_RANDOM_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("random_dots_switch", mydata.dots_switch, GP_BLUE); ); );
      GP.HR(); 
      M_BOX(GP_LEFT, GP.LABEL(DISPLAY_SECONDS_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("seconds_switch", mydata.seconds_switch, GP_BLUE); ); );
-     GP.HR(); 
-     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DATA_SHOW_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("auto_show_switch", mydata.autoshow_switch, GP_BLUE); GP.SPINNER("autoshow_min", mydata.autoshow_min, 0, 20, 1, 0, GP_BLUE, "50px", 0); ); );
-     GP.HR();
-     M_BOX(GP_LEFT, GP.LABEL("1:"); GP.SELECT("s_a_s0", SensorsAutoShowSelect2, mydata.autoshow_select[0], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec0", mydata.autoshow_select_sec[0], 2, 15, 1, 0, GP_BLUE, "50px", 0); ); );
-     M_BOX(GP_LEFT, GP.LABEL("2:"); GP.SELECT("s_a_s1", SensorsAutoShowSelect2, mydata.autoshow_select[1], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec1", mydata.autoshow_select_sec[1], 2, 15, 1, 0, GP_BLUE, "50px", 0); ); );
-     M_BOX(GP_LEFT, GP.LABEL("3:"); GP.SELECT("s_a_s2", SensorsAutoShowSelect2, mydata.autoshow_select[2], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec2", mydata.autoshow_select_sec[2], 2, 15, 1, 0, GP_BLUE, "50px", 0); ); );
-     M_BOX(GP_LEFT, GP.LABEL("4:"); GP.SELECT("s_a_s3", SensorsAutoShowSelect2, mydata.autoshow_select[3], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec3", mydata.autoshow_select_sec[3], 2, 15, 1, 0, GP_BLUE, "50px", 0); ); );
-     M_BOX(GP_LEFT, GP.LABEL("5:"); GP.SELECT("s_a_s4", SensorsAutoShowSelect2, mydata.autoshow_select[4], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec4", mydata.autoshow_select_sec[4], 2, 15, 1, 0, GP_BLUE, "50px", 0); ); );
-     M_BOX(GP_LEFT, GP.LABEL("6:"); GP.SELECT("s_a_s5", SensorsAutoShowSelect2, mydata.autoshow_select[5], 0,0,1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec5", mydata.autoshow_select_sec[5], 2, 15, 1, 0, GP_BLUE, "50px", 0); ); );
 
      GP.BLOCK_END();
 
@@ -229,12 +232,14 @@ void action(GyverPortal& p) {
         if (ui.clickInt("sens2_narod", mydata.nrd_sens[2]));
         if (ui.clickInt("sens3_narod", mydata.nrd_sens[3]));
 
-        if (ui.clickInt("autoshow_select_sec0", mydata.autoshow_select_sec[0]));
-        if (ui.clickInt("autoshow_select_sec1", mydata.autoshow_select_sec[1]));
-        if (ui.clickInt("autoshow_select_sec2", mydata.autoshow_select_sec[2]));
-        if (ui.clickInt("autoshow_select_sec3", mydata.autoshow_select_sec[3]));
-        if (ui.clickInt("autoshow_select_sec4", mydata.autoshow_select_sec[4]));
-        if (ui.clickInt("autoshow_select_sec5", mydata.autoshow_select_sec[5]));
+  
+        if (ui.clickInt("autoshow_min", mydata.autoshow_min));
+        if (ui.clickInt("autoshow_select_sec0", mydata.autoshow_select_sec[1]));
+        if (ui.clickInt("autoshow_select_sec1", mydata.autoshow_select_sec[2]));
+        if (ui.clickInt("autoshow_select_sec2", mydata.autoshow_select_sec[3]));
+        if (ui.clickInt("autoshow_select_sec3", mydata.autoshow_select_sec[4]));
+        if (ui.clickInt("autoshow_select_sec4", mydata.autoshow_select_sec[5]));
+        if (ui.clickInt("autoshow_select_sec5", mydata.autoshow_select_sec[6]));
 
         if (ui.clickStr("txt", buffer))  {
          // textbuff = textbuffinput;
@@ -288,11 +293,16 @@ void action(GyverPortal& p) {
         
         if (ui.clickInt("animations_dots", mydata.animdots)){}
         if (ui.clickInt("random_dots_switch", mydata.dots_switch)){} 
-     
+
+        if (ui.clickInt("random_autoshow_switch", mydata.random_autoshow_switch)){} 
+        if (ui.clickInt("autoshow_animations_select", mydata.autoshow_animations_select)){}
+
       if (ui.clickInt("seconds_switch", mydata.seconds_switch)){
        // if (mydata.modetime==0); //{mydata.modetime=0;}//Запускаем таймер для вывода Битка и эфира;
         //if (mydata.modetime==1); //{mydata.modetime=1;}
     } ;
+    if (ui.clickInt("auto_show_switch", mydata.autoshow_switch));
+      
        // if (ui.clickInt("rad1", valRad)) disp=0;
       // data.update();
        data.updateNow();
@@ -301,29 +311,30 @@ void action(GyverPortal& p) {
   if (ui.update()) {
     // 1. ищем, какой компонент запрашивает обновление
     // и вручную отправляем рандомное значение 
+    
     if (ui.update("sens0")) {
-      String updbuffer; 
-      updbuffer+=SensorsNarodMon[mydata.nrd_sens[0]];
-      updbuffer.remove(0,4);
-      ui.answer(updbuffer);
+     // String updbuffer=""; 
+      //updbuffer+=SensorsNarodMon[mydata.nrd_sens[0]];
+      //updbuffer.remove(0,4);
+      ui.answer(SensorsDisplay[0]);
     }//myString.
     if (ui.update("sens1")) {
-      String updbuffer; 
-      updbuffer+=SensorsNarodMon[mydata.nrd_sens[1]];
-      updbuffer.remove(0,4);
-      ui.answer(updbuffer);
+      //String updbuffer=""; 
+      //updbuffer+=SensorsNarodMon[mydata.nrd_sens[1]];
+      //updbuffer.remove(0,4);
+      ui.answer(SensorsDisplay[1]);
     }//myString.
     if (ui.update("sens2")) {
-      String updbuffer; 
-      updbuffer+=SensorsNarodMon[mydata.nrd_sens[2]];
-      updbuffer.remove(0,4);
-      ui.answer(updbuffer);
+      //String updbuffer=""; 
+      //updbuffer+=SensorsNarodMon[mydata.nrd_sens[2]];
+      //updbuffer.remove(0,4);
+      ui.answer(SensorsDisplay[2]);
     }//myString.
     if (ui.update("sens3")) {
-      String updbuffer; 
-      updbuffer+=SensorsNarodMon[mydata.nrd_sens[3]];
-      updbuffer.remove(0,4);
-      ui.answer(updbuffer);
+      //String updbuffer=""; 
+      //updbuffer+=SensorsNarodMon[mydata.nrd_sens[3]];
+      //updbuffer.remove(0,4);
+      ui.answer(SensorsDisplay[3]);
     }//myString.
 
     if (ui.update("temperature")) ui.answer(bmetemperature);

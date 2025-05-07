@@ -14,20 +14,20 @@ void getCrypto(){
    priceeth = myObject["ethereum"]["usd"];
    
    SensorsAutoShow[11]+=",";
-   SensorsAutoShow[11]+="BTC ";
+   SensorsAutoShow[11]+="B";
    SensorsAutoShow[11]+=pricebtc;
-   SensorsAutoShow[11]+=" $";
 
    SensorsAutoShow[12]+=",";
-   SensorsAutoShow[12]+="ETH ";
+   SensorsAutoShow[12]+="E";
    SensorsAutoShow[12]+=priceeth;
-   SensorsAutoShow[12]+=" $";
 
+   SensorsDisplay[11]+=",";
+   SensorsDisplay[11]=pricebtc;
    SensorsDisplay[11]+="B";
-   SensorsDisplay[11]+=pricebtc;
- 
+
+   SensorsDisplay[12]+=",";
+   SensorsDisplay[12]=priceeth;
    SensorsDisplay[12]+="E";
-   SensorsDisplay[12]+=priceeth;
 
 
   

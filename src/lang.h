@@ -37,3 +37,5 @@ const char* DISPLAY_SECONDS_SWITCH []={"Вкл/выкл секунды","On/off 
 const char* DATA_TYPE_SENSOR = ",t воздуха,t воды,t почвы,t точка росы,RH влажность,атм.давл.,освещенн.,Яркость,УФ-индекс,радиация,осадки,Пы,скорость,направление,концентрация,Р мощность,U напряжение,I сила тока,А энергия, % батареи,Rx, Tx трафик,логический,dBm сигнал,водосчетчик,время работы,числовой,текстовый";
 const char* DISPLAY_DATA_LABEL []={"Данные дисплея","Display data"};
 const char* DISPLAY_DATA_SHOW_SWITCH []={"Автопоказ","Auto show"};
+const char* DISPLAY_ANIMATION_AUTOSHOW_NAME []={"Анимация автопоказа","Auto show animation"};
+const char* DISPLAY_AUTOSHOW_ANIMATION_SELECT []={"выкл,1 анимация,2 анимация, 3 анимация, 4 анимация, 5 анимация","off,1 анимация,2 анимация, 3 анимация, 4 анимация, 5 анимация"};

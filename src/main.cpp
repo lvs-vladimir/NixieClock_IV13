@@ -9,11 +9,12 @@ void md5 (char* apimd5){
 }
 //Функция возврата десятичного представления символа
 uint8_t getCharCode(char symb) {
-  if (symb < 32 || symb > 126) return 0;
-  if (symb >= 97) {
+  if (symb < 32 || symb > 176) return 0;
+  if (symb >= 97 && symb<=175) {
       if (symb <= 122) symb -= 32;  // to lowercase
-      else symb -= 26;              // 123..126
+      else symb -= 26;              // 123..126       
   }
+  if (symb==176) symb-=75;
   return pgm_read_byte(_segCharMap + (symb - 32));
 }
 
@@ -103,7 +104,7 @@ void WiFiConnect_APcreate(){
 if(initWiFi()) {
   Serial.println ("WiFi успешно подключен");
   //подключаемся к сервисам
- 
+  ConnectionToServices();
 }
 else{
 // запускаем точку доступа если нет подключения
@@ -165,6 +166,22 @@ void set_dec_buffer() {
   for(byte i=0; i<=5; i++){
   dec_buffer[i] = getCharCode(buffer[i]); 
   }
+}
+
+void AutoShowUpdate(byte i)
+{
+  if (GPlistIdx(SensorsAutoShowSelect2, mydata.autoshow_select[i]).length() == 0) mydata.display++;
+  if (GPlistIdx(SensorsAutoShowSelect2, mydata.autoshow_select[i]).length() <= 3)
+  {
+    sprintf_P(buffer, (PGM_P)F("  %S"), GPlistIdx(SensorsAutoShowSelect2, mydata.autoshow_select[i]).c_str());
+  }
+ else if (GPlistIdx(SensorsAutoShowSelect2, mydata.autoshow_select[i]).length() == 4)
+  {
+    sprintf_P(buffer, (PGM_P)F(" %S"), GPlistIdx(SensorsAutoShowSelect2, mydata.autoshow_select[i]).c_str());
+  }
+  else sprintf_P(buffer, (PGM_P)F("%S"), GPlistIdx(SensorsAutoShowSelect2, mydata.autoshow_select[i]).c_str());
+
+  set_dec_buffer();
 }
 
 void RunDots(){
