@@ -20,7 +20,6 @@ void getTemp2(byte i){
 
   String serverPath;
   if (i==0) serverPath = "https://api.openweathermap.org/data/2.5/weather?q=" + (String)mydata.owCity + "&APPID=" + (String)mydata.owMapApiKey +"&units=metric";
-  
   else if (i==1) serverPath = "https://narodmon.ru/api/sensorsOnDevice?id="+(String)mydata.NarodmoonID+"&uuid="+(String)mydata.NarodmoonApiMD5+"&api_key="+(String)mydata.NarodmoonApi+"&lang=ru";
   else if (i>1) return;
   String jsonBuffer = httpGETRequest(serverPath.c_str());
@@ -88,6 +87,7 @@ void getTemp2(byte i){
      //sprintf_P(Sensors2[mydata.nrd_sens[i]],(PGM_P)F("%02d %S"), b,c.c_str());
 //Создаем вспомогательный строковый массив для вывода в SELECT
       if(c=="°") {c=""; c+="*";}
+      if(c=="mmHg") {c=""; c+="mHg";}
       SensorsAutoShow[i]+=",";
       //SensorsAutoShow[i]+="Nrd ";     
       SensorsAutoShow[i]+=b;

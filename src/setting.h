@@ -12,10 +12,9 @@
 #include <LittleFS.h>
 #include <FileData.h>
 #include <GyverPortal.h>
-//#include <GyverSegment.h>
 #include <MD5.h>
 // Необходимо форматировать LittleFS только при первом запуске
-//#define FORMAT_LITTLEFS_IF_FAILED true
+#define FORMAT_LITTLEFS_IF_FAILED true
 
 GyverPortal ui;//(&LittleFS); // для проверки файлов
 
@@ -39,11 +38,9 @@ struct Data {
   byte nrd_sens[5];//номер датчика narodmon
   byte nrd_type_sensor[6];
   byte autoshow_min,autoshow_select[6],autoshow_select_sec[6], autoshow_animations_select;
-  
-  
+   
 };
 Data mydata;
-
 FileData data(&LittleFS, "/setting.dat", 'B', &mydata, sizeof(mydata));
 
 Adafruit_VEML7700 veml = Adafruit_VEML7700();
@@ -53,17 +50,15 @@ TaskHandle_t Task_0;
 TaskHandle_t Task_1;
 
 // Определение NTP-клиента для получения времени
-long utcOffsetInSeconds = mydata.GMT; 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP,mydata.NTPserver, utcOffsetInSeconds);//"pool.ntp.org"
+NTPClient timeClient(ntpUDP,mydata.NTPserver, mydata.GMT);//"pool.ntp.org"
+
 
 const char* SYMBOLBTC = "BTC";
 const char* SYMBOLETH = "ETH";
 const char* CONVERT_TO = "usd";
 int pricebtc, priceeth;
 int TempValue;
-//byte mydata.display, mode, modedots, modetime=0;//текущий режим отображение: часы, крипта, дата, температура 
-byte anim=0;//текущая анимация Флип эффекты, поезд
 int num, num1, num2, num3, num4, num5,num6;
 
 SPIClass * hspi = NULL;
@@ -168,13 +163,9 @@ static const uint8_t _segCharMap[] PROGMEM = {
   0x93,  // ° 176 знак градуса 69 место
 };
 
-
-
-char buffer[100];
-char textbuffer[100];
-char Sensors2[6][40] PROGMEM;
+char textbuffer[7]="";//6 символов и нулевой байт
 //char SensorsAutoShowSelect[100];
-
+char buffer[7]="";//6 символов и нулевой байт
 String lost= "WIFI lost please connect to 192-168-4-1      ";
 //String SensorsNarodMon[20];
 String SensorsAutoShow[20];
@@ -187,107 +178,33 @@ String SensorsAutoShowSelect2;
 
 byte dec_buffer[6];
 
-byte FLIP_EFFECT_NUM = 4;//sizeof(FLIP_SPEED);   // количество эффектов
-//boolean flipIndics[6];
-//byte newTime[6];
 unsigned long previousMillis;
 
-timerMinim dotTimer(1000);                      // полсекундный таймер для часов
-//timerMinim dotBrightTimer(60);          // таймер шага яркости точки
-//timerMinim ReadTime(100);                // полсекундный таймер для часов
-timerMinim secondtimer(2000); //Таймер для смены эффектов
+timerMinim TimeTimer(1000); //Таймер для рассчета времени
 timerMinim timerTIME(40);
-timerMinim Datetimer(5000); //Таймер для вывода даты
-//timerMinim dotBrightTimer(DOT_TIMER);    // таймер шага яркости точки
-timerMinim backlBrightTimer(30);         // таймер шага яркости подсветки
-//timerMinim almTimer((long)ALM_TIMEOUT * 1000); // таймер работы будильника 30сек если ALM_TIMEOUT=30
-//timerMinim flipTimer(FLIP_SPEED[FLIP_EFFECT]); // таймер резинки
-timerMinim glitchTimer(1000); //таймер для глюков
-timerMinim blinkTimer(250); // таймер мигания цифры в настройках
 timerMinim ligtSensorTimer(100); // таймер мигания цифры в настройках
 timerMinim RandomTimer(150);
-timerMinim TestTimer(3000); //  тестирование индикаторов. 3000
-timerMinim trainTimer(300); // и для поезда
-timerMinim modeTimer((long)60 * 1000);
-timerMinim modeTimerP((long)202 * 1000);
 timerMinim SensorTimerI2C(3000); // Время обновления датчиков и яркости индикаторов
 timerMinim DotTimer(1000);//Таймер для переключение точек
 timerMinim DotRandomTimer(60000);//Таймер для переключение точек
-timerMinim mooveNixie(1000);//движение массива
+timerMinim mooveNixie(100);//движение массива
 
-
-
-volatile int8_t indiDimm[24];      // величина диммирования (0-24)
-volatile int8_t indiCounter[6];   // счётчик каждого индикатора (0-24)
-volatile int8_t indiDigits[6];    // цифры, которые должны показать индикаторы (0-10)
-volatile int8_t curIndi;          // текущий индикатор (0-5)
-boolean dotFlag, TrainFlag = true, TestFlag = true; //!
-//int8_t hrs, mins, secs, mnth, days, year, weekdays;
-//int8_t alm_hrs, alm_mins;
-//int8_t mode = Clock;    // 0 часы, 1 температура, 2 настройка будильника, 3 настройка часов, 4 аларм
-boolean changeFlag;
-boolean blinkFlag;
-boolean minus;
-//byte indiMaxBright = INDI_BRIGHT, dotMaxBright = DOT_BRIGHT, backlMaxBright = BACKL_BRIGHT;
-boolean alm_flag = 0;
-boolean dotBrightFlag, dotBrightDirection, backlBrightFlag, backlBrightDirection, indiBrightDirection;
-int dotBrightCounter, backlBrightCounter, indiBrightCounter, indiBrightCounterMinus, indiBrightCounterPlus;
-byte dotBrightStep;
-boolean newTimeFlag = true;
-boolean flipFlag = true;
-boolean flipIndics[6];
-int32_t newTime[6];
-int32_t Bufer[6];
-byte oldTime[6];
-boolean flipInit, flipInit4;
-byte startCathode[4], endCathode[4];
-byte glitchCounter, glitchMax, glitchIndic;
-boolean glitchFlag, indiState;
-byte curMode = 0;
-byte currentDigit = 0;
-int8_t changeHrs, changeMins, changeSecs,  changeDays, changeMonth, changeYear;
-boolean lampState = false;
-boolean anodeStates[] = {1, 1, 1, 1, 1, 1};
-boolean dotsFlag = false;
-//////////////////////////
-boolean timeon = true;//Вспомогательное булевое значение для включение анимации точек
-byte dmoove = 0;
-boolean dmooveright = true;
-boolean dmooveleft = false;
-/////////////////////////
-byte RandomOnOff[6] = {0, 1, 2, 3, 4, 5};//Храним вычислиные значение порядка появления анодов
-byte lightValue[4] = {21, 28, 24, 21};
-byte brightValue[4] = {2,10,18,24};
-byte is,js;
-boolean RandomAnodesFlag, RandomDirection=true;
-boolean RandomAnodesOn=false;
-byte currentLamp, flipEffectStages, testIndicator;
-byte CounterAn=0;
-bool trainLeaving = true;
-uint8_t colorIndex;
-unsigned long effect_timer;
-boolean ZoneCounter = false; // для "перевода часов"
-int8_t LampDots;
-byte DotsLR=1;
-byte k = 1;
-boolean DotRun, DotDirection = false;
-boolean TrainOn = false;
-boolean TrainDirection = true;
-byte al,bl,cl;//борьба с дребезгом сенсора
 int vemlvalue, vemllux;
 int bmevalue, bmehumudity, bmepressure, bmetemperature, altitude;
 int  oppressure, ophumidity, optemperature, narodpressure, narodhumidity, narodtemperature;
 int bvs[4];//Buffer Value sensors
 
-// переменные
-int valNum;
-String valPass;
-int valSlider;
-float valSpin;
-GPdate valDate;
-GPtime valTime;
-GPcolor valCol;
-int valSelect;
-byte valRad, valDot, valSec;
+int brightnessIV13;
+byte brightnesscount;
 
-byte Counter = 6;
+//Переменные для анимации
+int Counter = 6;
+byte off_effects = 0;
+byte on_effects = 0;
+boolean flip;
+boolean timerstart = false;
+boolean timeon = true;//Вспомогательное булевое значение для включение анимации точек
+byte dmoove = 0;
+boolean dmooveright = true;
+boolean dmooveleft = false;
+/////////////////////////

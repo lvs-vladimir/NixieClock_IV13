@@ -1,14 +1,7 @@
-//void addWithoutWipe(bool addw);
 
 void setup() { 
   
-  //I2CBME.begin(17, 16);
- // Wire.begin(21, 23);
   Serial.begin(115200);  
-  // читаем логин пароль WiFi из памяти
-  //addWithoutWipe(true);
- // EEPROM.begin(300);
-  //EEPROM.get(0, mydata);
 //Подключение файловой системы и чтение настроек
   LittleFS.begin();
   //data.addWithoutWipe(true);
@@ -34,23 +27,11 @@ void setup() {
   Serial.println(mydata.pass);
   Serial.println(mydata.owCity);
   Serial.println(mydata.owMapApiKey);
-  //Serial.println(mydata.NarodmoonApi);
- // Serial.println(mydata.NarodmoonID);
+  Serial.println(mydata.NarodmoonApi);
+  Serial.println(mydata.NarodmoonID);
   Serial.println(mydata.NarodmoonApiMD5);
   TempValue=mydata.displaytemperature;
   WiFiConnect_APcreate();
-/*else  WiFi.begin(lp.ssid, lp.pass);
-  //WiFi.begin(ssid, password); //Wifi  
-  while (WiFi.status() != WL_CONNECTED) {    
-    delay (500);    
-    Serial.print (".");  
-  }
-*/
-
-  //Читаем данные openWeather из памяти
- // EEPROM.get(60, ow);
-  //openWeatherMapApiKey=ow.owMapApiKey;
-  //city=ow.owCity;
 
   //Вкл обновление по "воздуху"
   OtaUpdate();
@@ -59,13 +40,10 @@ void setup() {
   ui.attachBuild(build);
   ui.attach(action);
   ui.start();
-  ui.log.start(30);   // размер буфера
   
   ui.enableOTA();   // без пароля
   //ui.enableOTA("admin", "pass");  // с паролем
  
-
-  
   if (!LittleFS.begin()) Serial.println("FS Error");
   ui.downloadAuto(true);
 
@@ -96,9 +74,9 @@ void setup() {
   Serial.print("lux: "); 
   Serial.println(veml.readLux());
 
-
-
-
+  timerTIME.stop();
+  mydata.display=0;
+  timeon=true;
 //подключаем 2 ядра esp32
    xTaskCreatePinnedToCore(
         Task0, /* Функция, содержащая код задачи */
@@ -118,3 +96,4 @@ void setup() {
         NULL,      /* &Task1 Идентификатор задачи, чтобы ее можно было отслеживать */
         1);          /* Ядро для выполнения задачи (1) */
       }
+      void loop() {}

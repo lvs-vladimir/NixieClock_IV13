@@ -1,5 +1,4 @@
-
-
+//Язык 
 const char* DEVICE_NAME [] = { "Часы на накальных индикаторах ИВ-13", "Iv-13 numetron clock"};
 const char* TAB_LINKS_NAMES [] = {"Главная,Настройки,Инфо,Прошивка", "Home,Setting,Info,Firmware"};
 const char* SETTING_LANGUAGE [] = {"Язык", "Language"};
