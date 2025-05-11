@@ -20,7 +20,7 @@ GyverPortal ui;//(&LittleFS); // для проверки файлов
 
 //*******************Переменные которые будут храниться в памяти
 struct Data {
-  char ssid[20];
+  char ssid[40];
   char pass[20];
   char owMapApiKey[60];
   char owCity[40];
@@ -176,6 +176,9 @@ String SensorsDisplayNarod[3];
 String SensorsAutoShowSelect;
 String SensorsAutoShowSelect2;
 
+String WiFI_List;
+char WiFI_ssid;
+
 byte dec_buffer[6];
 
 unsigned long previousMillis;
@@ -207,4 +210,6 @@ boolean timeon = true;//Вспомогательное булевое значе
 byte dmoove = 0;
 boolean dmooveright = true;
 boolean dmooveleft = false;
+int auto_show_counter;
+byte scan_list_idx;
 /////////////////////////

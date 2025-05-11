@@ -7,7 +7,7 @@ void build() {
   GP.TITLE(DEVICE_NAME[mydata.lng]); //Заголовок
   GP.HR(); //разделительная линия 
   //динамическое обновленеие данных на странице из переменных
-  GP.UPDATE("temperature,humudity,pressure,altitude,lux,timesystem,btc,eth,tempsystem,timedisp,sens0,sens1,sens2,sens3");
+  GP.UPDATE("temperature,humudity,pressure,altitude,lux,timesystem,btc,eth,tempsystem,timedisp,sens0,sens1,sens2,sens3,lg");
   //Кликабельный страницы с обновлением
   GP.NAV_TABS_LINKS("/,/setting,/info,/firmware", TAB_LINKS_NAMES[mydata.lng], GP_BLUE);
 
@@ -27,6 +27,8 @@ void build() {
     //*****************************************Подключение к WiFi***********************************************
     GP.BLOCK_THIN_BEGIN();
     M_BOX(GP_CENTER, GP.LABEL(SETTING_NETWORK_CONNECTION[mydata.lng]););
+    GP.HR();
+    M_BOX(GP_LEFT, GP.BUTTON_MINI("scan_btn", SETTING_NETWORK_SCAN_BTN[mydata.lng], "", GP_BLUE, "", 0, 1); M_BOX(GP_RIGHT, GP.SELECT("WiFi_List_Select", WiFI_List, scan_list_idx, 0, 0, 0); ););
     GP.HR();
     M_BOX(GP_LEFT, GP.LABEL(SETTING_NETWORK_WIFI_NAME[mydata.lng]); M_BOX(GP_RIGHT, GP.TEXT("lg", "Login", mydata.ssid, "100%");););
     M_BOX(GP_LEFT, GP.LABEL(SETTING_NETWORK_WIFI_PASSWORD[mydata.lng]); M_BOX(GP_RIGHT, GP.TEXT("ps", "Password", mydata.pass, "100%");));
@@ -71,7 +73,7 @@ void build() {
     M_BOX(GP_LEFT, GP.LABEL(SETTING_LANGUAGE[mydata.lng]); M_BOX(GP_RIGHT, GP.SELECT("lng", SETTING_LANGUAGE_ARRAY, mydata.lng, 0, 0, 1);); GP.BREAK(););
     GP.BLOCK_END();
 
-    GP.BUTTON_MINI("rst", "Restart", "", GP_BLUE, "", 0, 1);
+    GP.BUTTON_MINI("rst", SETTING_RESTART_BTN[mydata.lng], "", GP_BLUE, "", 0, 1);
     //GP.SUBMIT(SETTING_SAVE_BUTTON[mydata.lng], GP_BLUE);
     GP.FORM_END();
 
@@ -170,8 +172,9 @@ void build() {
 
 //Serial monitor
 void action(GyverPortal & p) {
-  /*
+  
     if (p.form("/setting")) {      // кнопка нажата
+      /*
         p.copyStr("lg", mydata.ssid);  // копируем себе
         p.copyStr("ps", mydata.pass);
         p.copyStr("ap", mydata.owMapApiKey);  // копируем себе
@@ -185,7 +188,8 @@ void action(GyverPortal & p) {
         WiFi.softAPdisconnect(); // отключаем AP
         ESP.restart();
       }
-*/
+        */
+    }
   if (ui.click()) {
     if (ui.click("rst")) ESP.restart(); //Перезагрузка по кнопке.
     if (ui.click("sntp_btn")) NTPClientUpdate(); //Синхранизация NTP сервера
@@ -195,6 +199,10 @@ void action(GyverPortal & p) {
       if (strlen(mydata.owMapApiKey) > 0 && strlen(mydata.owCity) > 0) getTemp2(0);
       else Serial.println("Нет настроек OP");
 
+    }
+    if (ui.click("scan_btn"))
+    {
+      ScanWiFi();
     }
     //Синхранизация narodmon.ru
     if (ui.click("narod_btn")) {
@@ -257,6 +265,11 @@ void action(GyverPortal & p) {
         if (valRad==4) mydata.mode=4;
         */
     }
+    if (ui.click("WiFi_List_Select")) {
+      ui.copyInt("WiFi_List_Select", scan_list_idx);
+     // int num = GPinList(const String& s, const String& list);
+        sprintf_P(mydata.ssid, (PGM_P) F("%S"), GPlistIdx(WiFI_List, scan_list_idx).c_str());
+  }
     if (ui.click("type_sensor0")) mydata.nrd_type_sensor[0] = ui.getInt("type_sensor0");
     if (ui.click("type_sensor1")) mydata.nrd_type_sensor[1] = ui.getInt("type_sensor1");
     if (ui.click("type_sensor2")) mydata.nrd_type_sensor[2] = ui.getInt("type_sensor2");
@@ -332,7 +345,7 @@ void action(GyverPortal & p) {
       //updbuffer.remove(0,4);
       ui.answer(SensorsDisplay[3]);
     } //myString.
-
+    if (ui.update("lg")) ui.answer(mydata.ssid);
     if (ui.update("temperature")) ui.answer(bmetemperature);
     if (ui.update("humudity")) ui.answer(bmehumudity);
     if (ui.update("pressure")) ui.answer(bmepressure);

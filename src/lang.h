@@ -4,6 +4,7 @@ const char* TAB_LINKS_NAMES [] = {"Главная,Настройки,Инфо,П
 const char* SETTING_LANGUAGE [] = {"Язык", "Language"};
 const char* SETTING_LANGUAGE_ARRAY = "  RU  ,  EN  ";
 const char* SETTING_NETWORK_CONNECTION [] = {"Подключение к сети","Network connection" };
+const char* SETTING_NETWORK_SCAN_BTN [] = {"Сканировать","Scan"};
 const char* SETTING_NETWORK_WIFI_NAME []={"Имя сети:", "WiFi name:"};
 const char* SETTING_NETWORK_WIFI_PASSWORD []={"Пароль:","Password:"};
 const char* SETTING_OP_NAME []={"Openweathermap.org","Openweathermap.org"};
@@ -17,7 +18,7 @@ const char* SETTING_TIME_NAME []={"Настройка времени", "Time set
 const char* SETTING_NTP_SYNC_BTN []={"Синхронизовать", "Synchronize"};
 const char* SETTING_OP_SYNC_BTN [] = {"Обновить","Update"};
 const char* SETTING_WIFI_CONNECT_BTN [] = {"Подключить","Connect"};
-
+const char* SETTING_RESTART_BTN[] = {"Перезагрузка","Restart"};
 const char* SETTING_NAROD_NAME []={"Narodmon.ru","Narodmon.ru"};
 const char* SETTING_NAROD_APIKEY[]={"Api ключ:","Api Key:"};
 const char* SETTING_NAROD_ID[]={"ID прибора:","Divice ID:"};

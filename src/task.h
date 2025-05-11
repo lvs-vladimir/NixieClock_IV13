@@ -168,10 +168,14 @@ void Task1(void * pvParameters) {
       newminute = (num2*10)+num1;
       newsecond = (num4*10)+num3;
      */
-
+//Вклавтопоказ по времени
     if (mydata.autoshow_switch) {
-      if (second == 30) timerTIME.start();
-    };
+      if ((auto_show_counter >= mydata.autoshow_min*60) && mydata.display==0) {
+        timerTIME.start();
+        auto_show_counter=0;
+      }
+    }
+
     switch (mydata.display) {
     case 0:
       //Выводим время
@@ -239,22 +243,6 @@ void Task1(void * pvParameters) {
     SwitchEffects(); //Эффекты
 
     UpdateDisplay();
-    //Запускаем таймера переключения режимов только после завершения анимации
-    //if (flip && on_effects==0 && mydata.display>0){
-    // timerTIME.start();
-    // timerTIME.setInterval(mydata.autoshow_select_sec[mydata.display]*1000);
-    //}
-    /*
-    switch (mydata.mode)
-    {
-    case 0:
-    if (second==30) timerTIME.start();
-    break;
-    case 1: mydata.display=0; break;
-    case 2: mydata.display=1; break;
-    case 3: mydata.display=2; break;
-    case 4: mydata.display=3; break;
-      }  
-    */
+
   }
 }

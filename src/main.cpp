@@ -61,6 +61,19 @@ String httpGETRequest(const char * serverName) {
 #include "getTemp.h"
 #include "calcTime.h"
 
+void ScanWiFi(){
+  WiFI_List = "";
+  int n = WiFi.scanNetworks();
+  for (int i = 0; i < n; ++i)
+  {
+    WiFI_List += WiFi.SSID(i);
+    if (i < n - 1)
+      WiFI_List += ",";
+    // delay(10);
+  }
+  WiFi.scanDelete();
+}
+
 bool initWiFi() { //Функция инициализации wifi
   if (mydata.ssid == "") { //|| ip==""
     Serial.println("Не определен SSID ");
@@ -68,6 +81,7 @@ bool initWiFi() { //Функция инициализации wifi
   }
 
   WiFi.mode(WIFI_STA);
+  ScanWiFi();
   // localIP.fromString(ip.c_str());
   // localGateway.fromString(gateway.c_str());
 
@@ -90,6 +104,7 @@ bool initWiFi() { //Функция инициализации wifi
       return false;
     }
   }
+  ///WiFi.
   Serial.println(WiFi.localIP());
   return true;
 }

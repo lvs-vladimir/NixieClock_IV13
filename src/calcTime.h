@@ -1,5 +1,6 @@
 void calculateTime() {
   second++;
+  if (mydata.display==0) auto_show_counter++;
   if (second > 59) {
     second = 0;
     minute++;
