@@ -16,7 +16,7 @@
 // Необходимо форматировать LittleFS только при первом запуске
 #define FORMAT_LITTLEFS_IF_FAILED true
 
-GyverPortal ui;//(&LittleFS); // для проверки файлов
+GyverPortal ui(&LittleFS); // для вывода файлов
 
 //*******************Переменные которые будут храниться в памяти
 struct Data {

@@ -3,9 +3,22 @@ void setup() {
   
   Serial.begin(115200);  
 //Подключение файловой системы и чтение настроек
-  LittleFS.begin();
-  //data.addWithoutWipe(true);
-  
+    if(!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED)){
+        Serial.println("LittleFS Mount Failed");
+        return;
+    }
+ /*
+  File file = LittleFS.open("/setting.dat");
+  if(!file){
+    Serial.println("Failed to open file");
+    return;
+  }
+    Serial.println(" Content:");
+  while(file.available()){
+    Serial.write(file.read());
+  }
+  file.close();
+*/
   FDstat_t stat = data.read();
   switch (stat) {
     case FD_FS_ERR: Serial.println("FS Error");
@@ -21,7 +34,7 @@ void setup() {
     default:
       break;
   }
-
+/*
   Serial.println("Data read:");
   Serial.println(mydata.ssid);
   Serial.println(mydata.pass);
@@ -31,6 +44,7 @@ void setup() {
   Serial.println(mydata.NarodmoonID);
   Serial.println(mydata.NarodmoonApiMD5);
   TempValue=mydata.displaytemperature;
+  */
   WiFiConnect_APcreate();
 
   //Вкл обновление по "воздуху"
@@ -39,13 +53,13 @@ void setup() {
   // подключаем веб интерфейс GiverPortal
   ui.attachBuild(build);
   ui.attach(action);
-  ui.start();
-  
+  ui.uploadAuto(true);
   ui.enableOTA();   // без пароля
   //ui.enableOTA("admin", "pass");  // с паролем
- 
-  if (!LittleFS.begin()) Serial.println("FS Error");
   ui.downloadAuto(true);
+  ui.start();
+  
+ 
 
 // подключаем конструктор и запускаем
 
@@ -55,7 +69,7 @@ void setup() {
   hspi = new SPIClass(HSPI);
   hspi->begin(HSPI_SCLK, HSPI_MISO, HSPI_MOSI, HSPI_SS);
 
-//PWM на gpio4 для регулировки яркости нуметронов
+//PWM контакт для регулировки яркости нуметронов
   pinMode(G, OUTPUT);
   digitalWrite(G, HIGH); 
   ledcSetup(PWM_CHANNEL, PWM_FREQ, PWM_RESOLUTION);
@@ -63,11 +77,11 @@ void setup() {
   ledcWrite(PWM_CHANNEL, 200);
   
   //Подключение i2c датчиков с выводом значений
- if (bme.begin(0x76)) ;
+ if (bme.begin(0x76));
   veml.begin();
-  veml.setLowThreshold(10000);
-  veml.setHighThreshold(20000);
-  veml.interruptEnable(true);
+  //veml.setLowThreshold(10000);
+  //veml.setHighThreshold(20000);
+  //veml.interruptEnable(true);
   Serial.print("Temperature = ");
   Serial.print(bme.readTemperature());
   Serial.println(" *C");

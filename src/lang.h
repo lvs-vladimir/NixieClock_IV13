@@ -1,10 +1,10 @@
 //Язык 
-const char* DEVICE_NAME [] = { "Часы на накальных индикаторах ИВ-13", "Iv-13 numetron clock"};
+const char* DEVICE_NAME [] = { "Часы на ИВ-13", "Iv-13 numetron clock"};
 const char* TAB_LINKS_NAMES [] = {"Главная,Настройки,Инфо,Прошивка", "Home,Setting,Info,Firmware"};
 const char* SETTING_LANGUAGE [] = {"Язык", "Language"};
 const char* SETTING_LANGUAGE_ARRAY = "  RU  ,  EN  ";
 const char* SETTING_NETWORK_CONNECTION [] = {"Подключение к сети","Network connection" };
-const char* SETTING_NETWORK_SCAN_BTN [] = {"Сканировать","Scan"};
+const char* SETTING_NETWORK_SCAN_BTN [] = {"Скан","Scan"};
 const char* SETTING_NETWORK_WIFI_NAME []={"Имя сети:", "WiFi name:"};
 const char* SETTING_NETWORK_WIFI_PASSWORD []={"Пароль:","Password:"};
 const char* SETTING_OP_NAME []={"Openweathermap.org","Openweathermap.org"};
@@ -39,3 +39,4 @@ const char* DISPLAY_DATA_LABEL []={"Данные дисплея","Display data"}
 const char* DISPLAY_DATA_SHOW_SWITCH []={"Автопоказ","Auto show"};
 const char* DISPLAY_ANIMATION_AUTOSHOW_NAME []={"Анимация автопоказа","Auto show animation"};
 const char* DISPLAY_AUTOSHOW_ANIMATION_SELECT []={"выкл,1 анимация,2 анимация, 3 анимация, 4 анимация, 5 анимация","off,1 анимация,2 анимация, 3 анимация, 4 анимация, 5 анимация"};
+const char* PAGE_TITLE []={"Часы нуметроны","Numitron clock"};

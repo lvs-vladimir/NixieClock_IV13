@@ -5,6 +5,9 @@ void build() {
   GP.BUILD_BEGIN(500);
   GP.THEME(GP_DARK);
   GP.TITLE(DEVICE_NAME[mydata.lng]); //Заголовок
+   GP.HR(); //разделительная линия 
+  GP.PAGE_TITLE(PAGE_TITLE[mydata.lng]); 
+  GP.IMAGE("/iv13.jpg","100%");
   GP.HR(); //разделительная линия 
   //динамическое обновленеие данных на странице из переменных
   GP.UPDATE("temperature,humudity,pressure,altitude,lux,timesystem,btc,eth,tempsystem,timedisp,sens0,sens1,sens2,sens3,lg");
@@ -86,6 +89,7 @@ void build() {
     GP.BLOCK_THIN_BEGIN();
     GP.OTA_FIRMWARE("OTA firmware", GP_BLUE);
     GP.OTA_FILESYSTEM("OTA filesystem", GP_BLUE);
+    GP.FILE_UPLOAD("file_upload", "Загр. файл"); 
     GP.BLOCK_END();
 
     // главная страница, корень, "/"

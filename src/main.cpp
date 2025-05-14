@@ -191,6 +191,7 @@ void DisplayTimeUpdate() {
     // numbers+=minute;
     // int len=numbers.length()+1;
     // numbers.toCharArray(textbuffer, len);
+    //sprintf_P(buffer,PSTR( "The column header is %S") ,(char)text2);
     sprintf_P(textbuffer, (PGM_P) F(" %02d%02d "), hour, minute);
   }
 }

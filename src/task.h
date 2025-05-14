@@ -169,7 +169,7 @@ void Task1(void * pvParameters) {
       newsecond = (num4*10)+num3;
      */
 //Вклавтопоказ по времени
-    if (mydata.autoshow_switch) {
+    if (mydata.autoshow_switch && mydata.autoshow_min!=0) {
       if ((auto_show_counter >= mydata.autoshow_min*60) && mydata.display==0) {
         timerTIME.start();
         auto_show_counter=0;
@@ -197,12 +197,6 @@ void Task1(void * pvParameters) {
       break;
     case 1:
       if (flip) {
-      //  Serial.print("OFF ");
-      //  Serial.println(off_effects);
-      //  Serial.print("ON ");
-      //  Serial.println(on_effects);
-      //  Serial.print("Disp ");
-      //  Serial.println(mydata.display);
         AutoShowUpdate(0);
         flip = false;
       }
@@ -220,7 +214,6 @@ void Task1(void * pvParameters) {
       }
       break;
     case 4:
-      //sprintf_P(buffer,PSTR( "The column header is %S") ,(char)text2);
       if (flip) {
         AutoShowUpdate(3);
         flip = false;
@@ -241,7 +234,6 @@ void Task1(void * pvParameters) {
     }
 
     SwitchEffects(); //Эффекты
-
     UpdateDisplay();
 
   }
