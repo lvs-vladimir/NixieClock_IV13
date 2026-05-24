@@ -1,0 +1,4 @@
+{
+    "idf.pythonInstallPath": "c:\\Espressif\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
+    "cmake.sourceDirectory": "/mnt/nvme0n1p3/Projects/Platformio/NixieClock_IV13/lib/ArduinoJson/test/StaticJsonBuffer"
+}

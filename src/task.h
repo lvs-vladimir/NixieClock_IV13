@@ -7,6 +7,7 @@ void Task0(void * pvParameters) {
     //ограничение бесплатного ключа api не более 330 запросов в сутки.
     if (cryptoCount >= 5) { 
       ConnectionToServices();
+      cryptoCount=0;
       //Меняем анимацию смены режимов 
     }
     if (minsCount >= 30) { // каждые 30 мин синхронизация с RTC

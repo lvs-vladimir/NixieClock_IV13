@@ -72,11 +72,24 @@ SPIClass * hspi = NULL;
 
 const int PWM_CHANNEL = 0;    // ESP32 имеет 16 каналов, которые могут генерировать 16 независимых сигналов.
 const int PWM_FREQ = 15000;     // Официальный пример ESP32 использует частоту 5000 Гц.
-const int PWM_RESOLUTION = 10; // Мы будем использовать то же разрешение, что и Uno (8 бит, 0-255), но ESP32 может достигать 16 бит.
+const int PWM_RESOLUTION = 8; // Мы будем использовать то же разрешение, что и Uno (8 бит, 0-255), но ESP32 может достигать 16 бит.
 
 // Максимальное значение рабочего цикла, основанное на разрешении ШИМ (будет 255, если разрешение составляет 8 бит)
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWM_RESOLUTION) - 1);
 const int LED_OUTPUT_PIN = 16;
+
+typedef struct {
+   const uint16_t min;
+   const uint16_t max;
+} Range;
+
+#define num_ranges 6
+
+//Диапазон значений VEML7700
+Range lux_ranges[num_ranges] = {{0, 12},{15, 47},{50, 97},{100, 297},{300, 697},{700, 50000}};
+//Значения яркости индикаторов ИВ-13
+//uint8_t brigh_values[num_ranges] = {20, 40, 80, 150, 200, 255};
+uint8_t brigh_values[num_ranges] = {230, 205, 160, 100, 50, 0};
 
 byte second, minute, hour,newsecond, newminute, newhour, dayOfWeek, day, dayOfMonth, month, year, minsCount, hourCount, cryptoCount;
 boolean updateCrypto = true;  
@@ -193,6 +206,8 @@ timerMinim DotRandomTimer(60000);//Таймер для переключение 
 timerMinim mooveNixie(100);//движение массива
 
 int vemlvalue, vemllux;
+uint8_t prev_brigh_value=0;
+
 int bmevalue, bmehumudity, bmepressure, bmetemperature, altitude;
 int  oppressure, ophumidity, optemperature, narodpressure, narodhumidity, narodtemperature;
 int bvs[4];//Buffer Value sensors

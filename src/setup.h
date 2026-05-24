@@ -7,7 +7,7 @@ void setup() {
         Serial.println("LittleFS Mount Failed");
         return;
     }
- /*
+ 
   File file = LittleFS.open("/setting.dat");
   if(!file){
     Serial.println("Failed to open file");
@@ -18,7 +18,7 @@ void setup() {
     Serial.write(file.read());
   }
   file.close();
-*/
+
   FDstat_t stat = data.read();
   switch (stat) {
     case FD_FS_ERR: Serial.println("FS Error");
@@ -48,7 +48,7 @@ void setup() {
   WiFiConnect_APcreate();
 
   //Вкл обновление по "воздуху"
-  OtaUpdate();
+  //OtaUpdate();
 
   // подключаем веб интерфейс GiverPortal
   ui.attachBuild(build);

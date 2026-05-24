@@ -125,7 +125,7 @@ void WiFiConnect_APcreate() {
     // запускаем точку доступа если нет подключения
     Serial.println("WiFi не подключен, создаем точку");
     WiFi.mode(WIFI_AP);
-    WiFi.softAP("IV13-CONNECT");
+    WiFi.softAP("IV13-AP");
     IPAddress IP = WiFi.softAPIP();
     Serial.print("AP IP address: ");
     Serial.println(IP);
@@ -282,8 +282,22 @@ void UpdateDisplay() {
   CS_OFF_HSPI;
 }
 
+//Устанавливаем яркость индикаторов в зависимости от попадания значения датчика в диапазон
+uint8_t brigh_value_indi(uint16_t veml_value, Range lux_ranges[], uint8_t brigh_values[], uint8_t prev_brigh_value) {
+    for (byte i = 0; i < num_ranges; i++) {
+        if (veml_value >= lux_ranges[i].min && veml_value <= lux_ranges[i].max) {
+            return prev_brigh_value = brigh_values[i];
+        }
+    }
+    return prev_brigh_value; // если ни один диапазон не подошел возвращаем предыдущие
+}
+
 void AutoBrightness() {
   vemllux = veml.readLux();
+  uint8_t bright_value = brigh_value_indi(vemllux, lux_ranges, brigh_values, prev_brigh_value);
+  prev_brigh_value = bright_value;
+  ledcWrite(PWM_CHANNEL, bright_value);
+  /*
   vemlvalue = vemllux;
   //Устанавливаем яркость IV13 (подбор на глаз) в зависимости от уровня освещения
   //Так как яркость на нуметронах меняется не линейно, то меняем ее путем подбора
@@ -297,6 +311,7 @@ void AutoBrightness() {
   if (vemlvalue < 49 && vemlvalue > 15) brightnessIV13 = map(vemlvalue, 15, 48, 749, 600); //brightnessIV13=750;//10%
   if (vemlvalue < 14 && vemlvalue >= 0) brightnessIV13 = map(vemlvalue, 0, 14, 800, 750); //brightnessIV13=800;//5%
   ledcWrite(PWM_CHANNEL, brightnessIV13); //brightnessIV13 = map(vemllux, 0, 800, 800, 0);
+  */
 }
 
 void DisplayTime() {
