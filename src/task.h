@@ -245,16 +245,14 @@ void Task1(void * pvParameters) {
       if (WiFi.status() != WL_CONNECTED) {
         if (!wifi_dc_state) {
           wifi_dc_state = true;
+          ap_show_scroll = true;
+          ap_scroll_pos = 0;
           log_add('W', "WiFi lost");
         }
-        sprintf_P(buffer, (PGM_P) F("  wifi"));
-        off_effects = 0;
-        on_effects = 0;
-        Counter = 6;
-        timeon = false;
       } else {
         if (wifi_dc_state) {
           wifi_dc_state = false;
+          ap_show_scroll = false;
           log_add('I', "WiFi reconnected");
           timeon = true;
           flip = true;
