@@ -38,6 +38,7 @@ struct Data {
   byte nrd_sens[5];//номер датчика narodmon
   byte nrd_type_sensor[6];
   byte autoshow_min,autoshow_select[6],autoshow_select_sec[6], autoshow_animations_select;
+  byte anim_change = 0;
    
 };
 Data mydata;
@@ -228,4 +229,10 @@ boolean dmooveleft = false;
 int auto_show_counter;
 byte scan_list_idx;
 bool wifi_dc_state = false;
+
+//AP mode scrolling
+bool ap_show_scroll = false;
+int ap_scroll_pos = 0;
+timerMinim apScrollTimer(700);
+const char ap_scroll_text[] = "  CONNECT 13-AP  CON";
 /////////////////////////

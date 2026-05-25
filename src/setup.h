@@ -1,38 +1,42 @@
 
 void setup() { 
   
-  Serial.begin(115200);  
+  Serial.begin(115200);
+  delay(2000);
 //Подключение файловой системы и чтение настроек
     if(!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED)){
         Serial.println("LittleFS Mount Failed");
         return;
     }
  
+  bool need_defaults = false;
   File file = LittleFS.open("/setting.dat");
   if(!file){
-    Serial.println("Failed to open file");
-    return;
+    Serial.println("No settings file, applying defaults");
+    need_defaults = true;
+  } else {
+    file.close();
+    FDstat_t stat = data.read();
+    if (stat == FD_READ) {
+      Serial.println("Settings loaded OK");
+    } else {
+      Serial.print("Settings read: "); Serial.println(stat);
+      need_defaults = true;
+    }
   }
-    Serial.println(" Content:");
-  while(file.available()){
-    Serial.write(file.read());
-  }
-  file.close();
-
-  FDstat_t stat = data.read();
-  switch (stat) {
-    case FD_FS_ERR: Serial.println("FS Error");
-      break;
-    case FD_FILE_ERR: Serial.println("Error");
-      break;
-    case FD_WRITE: Serial.println("Data Write");
-      break;
-    case FD_ADD: Serial.println("Data Add");
-      break;
-    case FD_READ: Serial.println("Data Read");
-      break;
-    default:
-      break;
+  if (need_defaults) {
+    memset(&mydata, 0, sizeof(mydata));
+    strcpy(mydata.NTPserver, "pool.ntp.org");
+    mydata.GMT = 3;
+    mydata.lng = 1;
+    mydata.display = 0;
+    mydata.mode = 0;
+    mydata.modetime = 0;
+    mydata.animdots = 1;
+    mydata.dots_switch = true;
+    mydata.seconds_switch = false;
+    for(int i=0; i<7; i++) mydata.dispset[i] = true;
+    data.read();  // creates file with defaults if missing, or overwrites if corrupt
   }
 /*
   Serial.println("Data read:");
@@ -74,7 +78,7 @@ void setup() {
   digitalWrite(G, HIGH); 
   ledcSetup(PWM_CHANNEL, PWM_FREQ, PWM_RESOLUTION);
   ledcAttachPin(LED_OUTPUT_PIN, PWM_CHANNEL);
-  ledcWrite(PWM_CHANNEL, 200);
+  ledcWrite(PWM_CHANNEL, 0);
   
   //Подключение i2c датчиков с выводом значений
  if (bme.begin(0x76));

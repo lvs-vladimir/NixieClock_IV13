@@ -118,7 +118,7 @@ void build() {
     M_BOX(GP_CENTER, GP.LABEL(DISPLAY_DATA_LABEL[mydata.lng]););
 
     GP.HR();
-    M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DATA_SHOW_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("auto_show_switch", mydata.autoshow_switch, GP_BLUE); GP.SPINNER("autoshow_min", mydata.autoshow_min, 0, 20, 1, 0, GP_BLUE, "50px", 0);););
+    M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DATA_SHOW_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("auto_show_switch", mydata.autoshow_switch, GP_BLUE); GP.SPINNER("autoshow_sec", mydata.autoshow_min, 5, 255, 1, 0, GP_BLUE, "50px", 0);););
     GP.BREAK();
     M_BOX(GP_LEFT, GP.LABEL("1:"); GP.SELECT("s_a_s0", SensorsAutoShowSelect2, mydata.autoshow_select[0], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec0", mydata.autoshow_select_sec[1], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
     M_BOX(GP_LEFT, GP.LABEL("2:"); GP.SELECT("s_a_s1", SensorsAutoShowSelect2, mydata.autoshow_select[1], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec1", mydata.autoshow_select_sec[2], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
@@ -127,15 +127,15 @@ void build() {
     M_BOX(GP_LEFT, GP.LABEL("5:"); GP.SELECT("s_a_s4", SensorsAutoShowSelect2, mydata.autoshow_select[4], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec4", mydata.autoshow_select_sec[5], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
     M_BOX(GP_LEFT, GP.LABEL("6:"); GP.SELECT("s_a_s5", SensorsAutoShowSelect2, mydata.autoshow_select[5], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec5", mydata.autoshow_select_sec[6], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
     GP.BREAK();
-    M_BOX(GP_LEFT, GP.LABEL(DISPLAY_ANIMATION_AUTOSHOW_NAME[mydata.lng]); M_BOX(GP_RIGHT, GP.SELECT("autoshow_animations_select", DISPLAY_AUTOSHOW_ANIMATION_SELECT[mydata.lng], mydata.autoshow_animations_select, 0, 0, 1);););
-    M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DOTS_RANDOM_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("random_autoshow_switch", mydata.random_autoshow_switch, GP_BLUE);););
+    M_BOX(GP_LEFT, GP.LABEL(SETTING_ANIM_NAME[mydata.lng]); M_BOX(GP_RIGHT, GP.SELECT("anim_change", SETTING_ANIM_ARRAY[mydata.lng], mydata.anim_change, 0, 0, 1);););
     GP.HR();
     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DOTS_NAME[mydata.lng]); M_BOX(GP_RIGHT, GP.SELECT("animations_dots", DISPLAY_DOTS_ANIMATIONS[mydata.lng], mydata.animdots, 0, 0, 1);););
     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DOTS_RANDOM_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("random_dots_switch", mydata.dots_switch, GP_BLUE);););
     GP.HR();
     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_SECONDS_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("seconds_switch", mydata.seconds_switch, GP_BLUE);););
+    GP.HR();
 
-    GP.BLOCK_END();
+  GP.BLOCK_END();
 
     //Блок для вывода данных дисплея
     GP.BLOCK_THIN_BEGIN();
@@ -241,7 +241,7 @@ void action(GyverPortal & p) {
     if (ui.clickInt("sens2_narod", mydata.nrd_sens[2]));
     if (ui.clickInt("sens3_narod", mydata.nrd_sens[3]));
 
-    if (ui.clickInt("autoshow_min", mydata.autoshow_min));
+    if (ui.clickInt("autoshow_sec", mydata.autoshow_min));
     if (ui.clickInt("autoshow_select_sec0", mydata.autoshow_select_sec[1]));
     if (ui.clickInt("autoshow_select_sec1", mydata.autoshow_select_sec[2]));
     if (ui.clickInt("autoshow_select_sec2", mydata.autoshow_select_sec[3]));
@@ -315,6 +315,7 @@ void action(GyverPortal & p) {
       //if (mydata.modetime==1); //{mydata.modetime=1;}
     };
     if (ui.clickInt("auto_show_switch", mydata.autoshow_switch));
+    if (ui.clickInt("anim_change", mydata.anim_change));
 
     // if (ui.clickInt("rad1", valRad)) disp=0;
     // data.update();

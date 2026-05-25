@@ -122,20 +122,20 @@ void WiFiConnect_APcreate() {
     Serial.println("WiFi успешно подключен");
     //подключаемся к сервисам
     ConnectionToServices();
+    ap_show_scroll = false;
   } else {
     // запускаем точку доступа если нет подключения
     Serial.println("WiFi не подключен, создаем точку");
     WiFi.mode(WIFI_AP);
-    WiFi.softAP("IV13-AP");
+    WiFi.softAP("13-AP");
     IPAddress IP = WiFi.softAPIP();
     Serial.print("AP IP address: ");
     Serial.println(IP);
     timerTIME.stop();
     //mydata.display=4;
 
-    //bufferer=text2.c_str();
-    //text2.toCharArray(bufferer, sizeof(text2));
-    //sprintf_P(textbuffer, (PGM_P)F("%S"), lost.c_str());//Заносим в буфер
+    ap_show_scroll = true;
+    ap_scroll_pos = 0;
 
     Serial.println(lost.length());
   }

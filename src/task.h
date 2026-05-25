@@ -120,11 +120,17 @@ void Task1(void * pvParameters) {
       Serial.println(mydata.display);
     }
 
+    if (!ap_show_scroll) {
     //Переключение режимов по таймеру
     if (timerTIME.isReady()) {
       mydata.display++;
       if (mydata.display > 0) timeon = false; //замораживаем дисплей со временем для анимации выключения
-      off_effects = 1; //включаем первую анимацию выключения
+      //выбираем анимацию смены
+    byte anim = mydata.anim_change;
+    if (anim == 3) anim = random(0, 3);
+    if (anim == 0) { off_effects = 1; Counter = 5; } //скролл
+    if (anim == 1) { off_effects = 2; Counter = 5; } //каскад R->L
+    if (anim == 2) { off_effects = 3; Counter = 5; } //каскад L->R
       int tim = mydata.autoshow_select_sec[mydata.display] * 1000;
       timerTIME.setInterval(tim + 3000);
       //timerTIME.stop();//останавоиваем таймер после смены режима
@@ -171,7 +177,7 @@ void Task1(void * pvParameters) {
      */
 //Вклавтопоказ по времени
     if (mydata.autoshow_switch && mydata.autoshow_min!=0) {
-      if ((auto_show_counter >= mydata.autoshow_min*60) && mydata.display==0) {
+      if ((auto_show_counter >= mydata.autoshow_min) && mydata.display==0) {
         timerTIME.start();
         auto_show_counter=0;
       }
@@ -233,6 +239,7 @@ void Task1(void * pvParameters) {
       }
       break;
     }
+    }
 
     //WiFi disconnect monitoring
     if (WiFi.getMode() == WIFI_STA) {
@@ -253,6 +260,23 @@ void Task1(void * pvParameters) {
           timerTIME.start();
           timerTIME.setInterval(40);
         }
+      }
+    }
+
+    //AP mode scrolling text
+    if (ap_show_scroll) {
+      if (apScrollTimer.isReady()) {
+        ap_scroll_pos++;
+        int len = strlen(ap_scroll_text);
+        if (ap_scroll_pos >= len - 6) ap_scroll_pos = 0;
+        for (int i = 0; i < 6; i++) {
+          buffer[i] = ap_scroll_text[ap_scroll_pos + i];
+        }
+        buffer[6] = '\0';
+        off_effects = 0;
+        on_effects = 0;
+        Counter = 6;
+        timeon = false;
       }
     }
 
