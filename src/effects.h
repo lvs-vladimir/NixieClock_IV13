@@ -67,5 +67,60 @@ void SwitchEffects(){
         on_effects = 0;
       }
     }
+
+    // **********Случайное исчезновение сегментов*********************
+    if (off_effects == 5){
+      seg_anim_active = true;
+      byte any = 0;
+      for (byte i = 0; i < 6; i++){
+        byte pat = dec_buffer[i] & 0x7F;
+        if (pat){
+          any = 1;
+          byte bit = random(0, 7);
+          while (!(pat & (1 << bit))){
+            bit = random(0, 7);
+          }
+          pat &= ~(1 << bit);
+          dec_buffer[i] = pat;
+        }
+      }
+      if (!any){
+        off_effects = 0;
+        flip = true;
+        on_effects = 5;
+        seg_inited = false;
+        memset(dec_buffer, 0, 6);
+      }
+    }
+    //Случайное появление сегментов
+    if (on_effects == 5 && !flip){
+      seg_anim_active = true;
+      if (!seg_inited){
+        for (byte i = 0; i < 6; i++){
+          seg_current[i] = 0;
+          seg_target[i] = getCharCode(textbuffer[i]) & 0x7F;
+          dec_buffer[i] = 0;
+        }
+        seg_inited = true;
+      }
+      byte done = 1;
+      for (byte i = 0; i < 6; i++){
+        if (seg_current[i] != seg_target[i]){
+          done = 0;
+          byte diff = seg_target[i] & ~seg_current[i];
+          byte bit = random(0, 7);
+          while (!(diff & (1 << bit))){
+            bit = random(0, 7);
+          }
+          seg_current[i] |= (1 << bit);
+          dec_buffer[i] = seg_current[i];
+        }
+      }
+      if (done){
+        memcpy(buffer, textbuffer, 6);
+        seg_anim_active = false;
+        on_effects = 0;
+      }
+    }
   }
 }

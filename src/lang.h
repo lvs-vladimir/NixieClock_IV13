@@ -41,4 +41,4 @@ const char* DISPLAY_ANIMATION_AUTOSHOW_NAME []={"Анимация автопок
 const char* DISPLAY_AUTOSHOW_ANIMATION_SELECT []={"выкл,1 анимация,2 анимация, 3 анимация, 4 анимация, 5 анимация","off,1 анимация,2 анимация, 3 анимация, 4 анимация, 5 анимация"};
 const char* PAGE_TITLE []={"Часы нуметроны","Numitron clock"};
 const char* SETTING_ANIM_NAME []={"Анимация смены:","Switch animation:"};
-const char* SETTING_ANIM_ARRAY[] = { "Скролл,Каскад спр.,Каскад сл.,Случайно", "Scroll,Cascade R->L,Cascade L->R,Random" };
+const char* SETTING_ANIM_ARRAY[] = { "Скролл,Каскад спр.,Каскад сл.,Случайно,Сегменты", "Scroll,Cascade R->L,Cascade L->R,Random,Segments" };

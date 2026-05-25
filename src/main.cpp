@@ -179,6 +179,7 @@ void OtaUpdate() {
 }
 //переводим символы из char в десятичные
 void set_dec_buffer() {
+  if (seg_anim_active) return;
   for (byte i = 0; i <= 5; i++) {
     dec_buffer[i] = getCharCode(buffer[i]);
   }

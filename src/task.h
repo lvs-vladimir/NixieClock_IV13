@@ -127,10 +127,12 @@ void Task1(void * pvParameters) {
       if (mydata.display > 0) timeon = false; //замораживаем дисплей со временем для анимации выключения
       //выбираем анимацию смены
     byte anim = mydata.anim_change;
-    if (anim == 3) anim = random(0, 3);
+    if (anim == 3) anim = random(0, 4);
     if (anim == 0) { off_effects = 1; Counter = 5; } //скролл
     if (anim == 1) { off_effects = 2; Counter = 5; } //каскад R->L
     if (anim == 2) { off_effects = 3; Counter = 5; } //каскад L->R
+    if (anim == 3) { off_effects = 5; } //сегменты
+    if (anim == 4) { off_effects = 5; } //сегменты
       int tim = mydata.autoshow_select_sec[mydata.display] * 1000;
       timerTIME.setInterval(tim + 3000);
       //timerTIME.stop();//останавоиваем таймер после смены режима

@@ -235,4 +235,11 @@ bool ap_show_scroll = false;
 int ap_scroll_pos = 0;
 timerMinim apScrollTimer(700);
 const char ap_scroll_text[] = "  CONNECT 13-AP  CON";
+
+//Segment animation state
+bool seg_anim_active = false;
+byte seg_current[6];
+byte seg_target[6];
+bool seg_inited = false;
+uint8_t getCharCode(char symb);
 /////////////////////////

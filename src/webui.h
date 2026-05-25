@@ -82,7 +82,7 @@ void build() {
 
     // страница INFO
   } else if (ui.uri("/info")) {
-    GP.SYSTEM_INFO("1.0");
+    GP.SYSTEM_INFO("1.1");
 
     // страница firmware
   } else if (ui.uri("/firmware")) {
