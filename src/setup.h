@@ -89,14 +89,15 @@ void setup() {
   ledcWrite(PWM_CHANNEL, 0);
   
   //Подключение i2c датчиков с выводом значений
- if (bme.begin(0x76));
+  bme_ok = bme.begin(0x76);
+  if (bme_ok) {
+    Serial.print("BME280 Temperature = ");
+    Serial.print(bme.readTemperature());
+    Serial.println(" *C");
+  } else {
+    Serial.println("BME280 not found");
+  }
   veml.begin();
-  //veml.setLowThreshold(10000);
-  //veml.setHighThreshold(20000);
-  //veml.interruptEnable(true);
-  Serial.print("Temperature = ");
-  Serial.print(bme.readTemperature());
-  Serial.println(" *C");
   Serial.print("lux: "); 
   Serial.println(veml.readLux());
 

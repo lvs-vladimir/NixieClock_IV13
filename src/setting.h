@@ -240,6 +240,7 @@ uint8_t prev_brigh_value=0;
 
 int bmevalue, bmehumudity, bmepressure, bmetemperature, altitude;
 int  oppressure, ophumidity, optemperature, narodpressure, narodhumidity, narodtemperature;
+bool bme_ok = false;
 bool owm_ok = false;
 int bvs[4];//Buffer Value sensors
 

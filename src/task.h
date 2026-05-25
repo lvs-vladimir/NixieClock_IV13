@@ -39,12 +39,14 @@ void Task1(void * pvParameters) {
 
       //Считываем данные с bme280
 
+      if (bme_ok) {
       bmetemperature = bme.readTemperature();
       bmepressure = bme.readPressure();
       altitude = pressureToAltitude(bmepressure);
       bmepressure = pressureToMmHg(bmepressure);
       bmehumudity = bme.readHumidity();
-      if (bmetemperature != 0 && bmehumudity != 0) {
+      }
+      if (bme_ok && bmetemperature != 0 && bmehumudity != 0) {
         byte j = 7;
         while (j <= 10) {
           SensorsAutoShow[j] = ""; //очистка

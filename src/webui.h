@@ -113,6 +113,7 @@ void build() {
   } else {
     //*******************Начало вкладки HOME***********************************************************
     //Блок для вывода BME280
+    if (bme_ok) {
     GP.BLOCK_THIN_BEGIN();
     M_BOX(GP_CENTER, GP.LABEL("BME280"););
     GP.HR();
@@ -121,6 +122,7 @@ void build() {
     M_BOX(GP_LEFT, GP.LABEL("Давление:"); GP.LABEL(" ", "pressure"); GP.LABEL("mm Hg"); GP.BREAK(););
     M_BOX(GP_LEFT, GP.LABEL("Высота:"); GP.LABEL(" ", "altitude"); GP.LABEL("M"); GP.BREAK(););
     GP.BLOCK_END();
+    }
 
     //Блок OpenWeatherMap
     if (owm_ok) {
