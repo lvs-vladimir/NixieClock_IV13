@@ -111,13 +111,7 @@ void Task1(void * pvParameters) {
         //Serial.println(SensorsDisplay[f]);
         f++;
       }
-      Serial.println(buffer);
-      Serial.print("OFF ");
-      Serial.println(off_effects);
-      Serial.print("ON ");
-      Serial.println(on_effects);
-      Serial.print("Disp ");
-      Serial.println(mydata.display);
+      log_add('D', "Mode %d anim %d off %d on %d", mydata.display, mydata.anim_change, off_effects, on_effects);
     }
 
     if (!ap_show_scroll) {
@@ -125,6 +119,7 @@ void Task1(void * pvParameters) {
     if (timerTIME.isReady()) {
       mydata.display++;
       if (mydata.display > 0) timeon = false; //замораживаем дисплей со временем для анимации выключения
+      log_add('I', "Timer display=%d", mydata.display);
       //выбираем анимацию смены
     byte anim = mydata.anim_change;
     if (anim == 3) anim = random(0, 4);
@@ -248,6 +243,7 @@ void Task1(void * pvParameters) {
       if (WiFi.status() != WL_CONNECTED) {
         if (!wifi_dc_state) {
           wifi_dc_state = true;
+          log_add('W', "WiFi lost");
         }
         sprintf_P(buffer, (PGM_P) F("  wifi"));
         off_effects = 0;
@@ -257,6 +253,7 @@ void Task1(void * pvParameters) {
       } else {
         if (wifi_dc_state) {
           wifi_dc_state = false;
+          log_add('I', "WiFi reconnected");
           timeon = true;
           flip = true;
           timerTIME.start();

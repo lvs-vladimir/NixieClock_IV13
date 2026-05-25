@@ -1,6 +1,6 @@
 //Язык 
 const char* DEVICE_NAME [] = { "Часы на ИВ-13", "Iv-13 numetron clock"};
-const char* TAB_LINKS_NAMES [] = {"Главная,Настройки,Инфо,Прошивка", "Home,Setting,Info,Firmware"};
+const char* TAB_LINKS_NAMES [] = {"Главная,Настройки,Инфо,Прошивка,Логи", "Home,Setting,Info,Firmware,Logs"};
 const char* SETTING_LANGUAGE [] = {"Язык", "Language"};
 const char* SETTING_LANGUAGE_ARRAY = "  RU  ,  EN  ";
 const char* SETTING_NETWORK_CONNECTION [] = {"Подключение к сети","Network connection" };

@@ -13,10 +13,39 @@
 #include <FileData.h>
 #include <GyverPortal.h>
 #include <MD5.h>
+#include <stdarg.h>
 // Необходимо форматировать LittleFS только при первом запуске
 #define FORMAT_LITTLEFS_IF_FAILED true
 
 GyverPortal ui(&LittleFS); // для вывода файлов
+
+// Логи
+#define LOG_ENTRIES 64
+#define LOG_LINE_LEN 80
+struct LogEntry {
+  uint32_t time;
+  char level;
+  char msg[LOG_LINE_LEN];
+};
+LogEntry log_entries[LOG_ENTRIES];
+byte log_write_idx = 0;
+byte log_count = 0;
+
+void log_add(char level, const char* fmt, ...) {
+  char buf[LOG_LINE_LEN];
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(buf, LOG_LINE_LEN, fmt, args);
+  va_end(args);
+  uint32_t now = millis();
+  log_entries[log_write_idx].time = now;
+  log_entries[log_write_idx].level = level;
+  strncpy(log_entries[log_write_idx].msg, buf, LOG_LINE_LEN - 1);
+  log_entries[log_write_idx].msg[LOG_LINE_LEN - 1] = 0;
+  log_write_idx = (log_write_idx + 1) % LOG_ENTRIES;
+  if (log_count < LOG_ENTRIES) log_count++;
+  Serial.printf("[%lu] %c: %s\n", now, level, buf);
+}
 
 //*******************Переменные которые будут храниться в памяти
 struct Data {

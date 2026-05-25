@@ -12,7 +12,7 @@ void build() {
   //динамическое обновленеие данных на странице из переменных
   GP.UPDATE("temperature,humudity,pressure,altitude,lux,timesystem,btc,eth,tempsystem,timedisp,sens0,sens1,sens2,sens3,lg");
   //Кликабельный страницы с обновлением
-  GP.NAV_TABS_LINKS("/,/setting,/info,/firmware", TAB_LINKS_NAMES[mydata.lng], GP_BLUE);
+  GP.NAV_TABS_LINKS("/,/setting,/info,/firmware,/log", TAB_LINKS_NAMES[mydata.lng], GP_BLUE);
 
   // страница setting
   if (ui.uri("/setting")) {
@@ -90,6 +90,23 @@ void build() {
     GP.OTA_FIRMWARE("OTA firmware", GP_BLUE);
     GP.OTA_FILESYSTEM("OTA filesystem", GP_BLUE);
     GP.FILE_UPLOAD("file_upload", "Загр. файл"); 
+    GP.BLOCK_END();
+
+    // страница логов
+  } else if (ui.uri("/log")) {
+    GP.LABEL(F("<script>setInterval(function(){location.reload()},3000)</script>"), "");
+    GP.BLOCK_THIN_BEGIN();
+    M_BOX(GP_CENTER, GP.LABEL("System Log"););
+    GP.HR();
+    byte idx = (log_count < LOG_ENTRIES) ? 0 : log_write_idx;
+    byte cnt = log_count;
+    for (byte i = 0; i < cnt; i++) {
+      byte n = (idx + i) % LOG_ENTRIES;
+      char line[LOG_LINE_LEN + 16];
+      snprintf(line, sizeof(line), "[%5lu] %c: %s", log_entries[n].time, log_entries[n].level, log_entries[n].msg);
+      GP.LABEL(line, "", GP_DEFAULT, 10);
+      GP.BREAK();
+    }
     GP.BLOCK_END();
 
     // главная страница, корень, "/"

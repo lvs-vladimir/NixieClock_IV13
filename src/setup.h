@@ -3,8 +3,13 @@ void setup() {
   
   Serial.begin(115200);
   delay(2000);
+  memset(log_entries, 0, sizeof(log_entries));
+  log_write_idx = 0;
+  log_count = 0;
+  log_add('I', "System boot");
 //Подключение файловой системы и чтение настроек
     if(!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED)){
+        log_add('E', "LittleFS Mount Failed");
         Serial.println("LittleFS Mount Failed");
         return;
     }
@@ -12,14 +17,17 @@ void setup() {
   bool need_defaults = false;
   File file = LittleFS.open("/setting.dat");
   if(!file){
+    log_add('W', "No settings file, applying defaults");
     Serial.println("No settings file, applying defaults");
     need_defaults = true;
   } else {
     file.close();
     FDstat_t stat = data.read();
     if (stat == FD_READ) {
+      log_add('I', "Settings loaded OK");
       Serial.println("Settings loaded OK");
     } else {
+      log_add('W', "Settings read: %d, applying defaults", stat);
       Serial.print("Settings read: "); Serial.println(stat);
       need_defaults = true;
     }
