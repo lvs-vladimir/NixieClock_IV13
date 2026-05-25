@@ -189,11 +189,6 @@ void build() {
     M_BOX(GP_LEFT, GP.RADIO("rad", 0, mydata.mode, GP_BLUE); GP.LABEL("Время:"); GP.LABEL("", "timesystem"); GP.LABEL(" "););
     M_BOX(GP_LEFT, GP.RADIO("rad", 1, mydata.mode, GP_BLUE); GP.LABEL("Биток:"); GP.LABEL("", "btc"); GP.LABEL("$"););
     M_BOX(GP_LEFT, GP.RADIO("rad", 2, mydata.mode, GP_BLUE); GP.LABEL("Эфир:"); GP.LABEL("", "eth"); GP.LABEL("$"););
-    M_BOX(GP_LEFT, GP.RADIO("rad", 3, mydata.mode, GP_BLUE); GP.LABEL("Температура:"); GP.LABEL("", "tempsystem"); GP.LABEL("°C");
-
-      M_BOX(GP_RIGHT, GP.SELECT("timedisp", SET_TEMPERATURE_SENSOR_ARRAY, mydata.displaytemperature, 0, 0, 1);); GP.BREAK();
-    );
-    M_BOX(GP_LEFT, GP.RADIO("rad", 4, mydata.mode, GP_BLUE); GP.LABEL("Авто смена режимов");)
     GP.BLOCK_END();
 
     GP.BLOCK_THIN_BEGIN();
@@ -298,10 +293,9 @@ void action(GyverPortal & p) {
     if (ui.clickInt("rad", mydata.mode)) {
       off_effects = 0; on_effects = 0;
       seg_anim_active = false; seg_inited = false;
-      for (byte i = 0; i <= 4; i++) {
+      for (byte i = 0; i <= 2; i++) {
         if (mydata.mode == i) {
           mydata.display = i;
-          if (mydata.mode == 4) mydata.display = 0;
         }
       }
       //если автосмена режима то 
