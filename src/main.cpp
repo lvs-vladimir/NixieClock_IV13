@@ -91,6 +91,7 @@ bool initWiFi() { //Функция инициализации wifi
       return false;
     }
   */
+  WiFi.setAutoReconnect(true);
   WiFi.begin(mydata.ssid, mydata.pass);
   Serial.println("Подключаемся к WiFi...");
 
@@ -142,7 +143,7 @@ void WiFiConnect_APcreate() {
 
 void OtaUpdate() {
   //Обновление по воздуху   
-  ArduinoOTA.setHostname("ESP32");
+  ArduinoOTA.setHostname("iv13-clock");
 
   ArduinoOTA.onStart([]() {
       String type;

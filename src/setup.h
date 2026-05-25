@@ -48,7 +48,7 @@ void setup() {
   WiFiConnect_APcreate();
 
   //Вкл обновление по "воздуху"
-  //OtaUpdate();
+  OtaUpdate();
 
   // подключаем веб интерфейс GiverPortal
   ui.attachBuild(build);

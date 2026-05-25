@@ -227,4 +227,5 @@ boolean dmooveright = true;
 boolean dmooveleft = false;
 int auto_show_counter;
 byte scan_list_idx;
+bool wifi_dc_state = false;
 /////////////////////////

@@ -1,4 +1,7 @@
 {
-    "idf.pythonInstallPath": "c:\\Espressif\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
-    "cmake.sourceDirectory": "/mnt/nvme0n1p3/Projects/Platformio/NixieClock_IV13/lib/ArduinoJson/test/StaticJsonBuffer"
+  "idf.pythonInstallPath": "c:\\Espressif\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
+  "cmake.sourceDirectory": "/lib/ArduinoJson/test/StaticJsonBuffer",
+  "platformio-ide.useBuiltinPython": false,
+  "platformio-ide.useBuiltinPIOCore": true,
+  "platformio-ide.customPATH": "/home/lvs/.platformio/penv/bin:/home/lvs/.local/bin:/usr/bin:/usr/local/bin"
 }

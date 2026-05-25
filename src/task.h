@@ -234,6 +234,28 @@ void Task1(void * pvParameters) {
       break;
     }
 
+    //WiFi disconnect monitoring
+    if (WiFi.getMode() == WIFI_STA) {
+      if (WiFi.status() != WL_CONNECTED) {
+        if (!wifi_dc_state) {
+          wifi_dc_state = true;
+        }
+        sprintf_P(buffer, (PGM_P) F("  wifi"));
+        off_effects = 0;
+        on_effects = 0;
+        Counter = 6;
+        timeon = false;
+      } else {
+        if (wifi_dc_state) {
+          wifi_dc_state = false;
+          timeon = true;
+          flip = true;
+          timerTIME.start();
+          timerTIME.setInterval(40);
+        }
+      }
+    }
+
     SwitchEffects(); //Эффекты
     UpdateDisplay();
 
