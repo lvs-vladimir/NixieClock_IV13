@@ -66,7 +66,7 @@ struct Data {
   byte nrd_sens0,nrd_sens1,nrd_sens2;
   byte nrd_sens[5];//номер датчика narodmon
   byte nrd_type_sensor[6];
-  byte autoshow_min,autoshow_select[6],autoshow_select_sec[6], autoshow_animations_select;
+  byte autoshow_min, autoshow_slots, autoshow_select[6], autoshow_select_sec[7], autoshow_animations_select;
   byte anim_change = 0;
    
 };
@@ -240,6 +240,7 @@ uint8_t prev_brigh_value=0;
 
 int bmevalue, bmehumudity, bmepressure, bmetemperature, altitude;
 int  oppressure, ophumidity, optemperature, narodpressure, narodhumidity, narodtemperature;
+bool owm_ok = false;
 int bvs[4];//Buffer Value sensors
 
 int brightnessIV13;

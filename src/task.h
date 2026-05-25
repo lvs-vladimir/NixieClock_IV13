@@ -116,30 +116,29 @@ void Task1(void * pvParameters) {
 
     if (!ap_show_scroll) {
     //Переключение режимов по таймеру
-    if (timerTIME.isReady()) {
+    if (timerTIME.isReady() && mydata.autoshow_slots > 0) {
       mydata.display++;
-      if (mydata.display > 0) timeon = false; //замораживаем дисплей со временем для анимации выключения
-      log_add('I', "Timer display=%d", mydata.display);
-      //выбираем анимацию смены
-    byte anim = mydata.anim_change;
-    if (anim == 3) anim = random(0, 4);
-    if (anim == 0) { off_effects = 1; Counter = 5; } //скролл
-    if (anim == 1) { off_effects = 2; Counter = 5; } //каскад R->L
-    if (anim == 2) { off_effects = 3; Counter = 5; } //каскад L->R
-    if (anim == 3) { off_effects = 5; } //сегменты
-    if (anim == 4) { off_effects = 5; } //сегменты
-      int tim = mydata.autoshow_select_sec[mydata.display] * 1000;
-      timerTIME.setInterval(tim + 3000);
-      //timerTIME.stop();//останавоиваем таймер после смены режима
-      timerstart = true;
-      if (mydata.display > 6) {
+      if (mydata.display > 0) timeon = false;
+      off_effects = 0; on_effects = 0;
+      seg_anim_active = false; seg_inited = false;
+      byte anim = mydata.anim_change;
+      if (anim == 3) anim = random(0, 4);
+      if (anim == 0) { off_effects = 1; Counter = 5; }
+      if (anim == 1) { off_effects = 2; Counter = 5; }
+      if (anim == 2) { off_effects = 3; Counter = 5; }
+      if (anim == 3) { off_effects = 5; }
+      if (anim == 4) { off_effects = 5; }
+      log_add('D', "Timer display=%d off=%d", mydata.display, off_effects);
+      if (mydata.display > mydata.autoshow_slots) {
         mydata.display = 0;
         DisplayTimeUpdate();
-        // flip=true; 
         timerTIME.stop();
         timerTIME.setInterval(40);
+      } else {
+        int tim = mydata.autoshow_select_sec[mydata.display] * 1000;
+        timerTIME.setInterval(tim + 3000);
+        timerstart = true;
       }
-      //Запускать эффект смены изображения только при смене режима
     }
     /*
      if (timerstart && on_effects==0 && off_effects==0){
@@ -174,7 +173,7 @@ void Task1(void * pvParameters) {
      */
 //Вклавтопоказ по времени
     if (mydata.autoshow_switch && mydata.autoshow_min!=0) {
-      if ((auto_show_counter >= mydata.autoshow_min) && mydata.display==0) {
+      if ((auto_show_counter >= mydata.autoshow_min) && mydata.display==0 && on_effects==0 && off_effects==0) {
         timerTIME.start();
         auto_show_counter=0;
       }
@@ -189,6 +188,7 @@ void Task1(void * pvParameters) {
           flip=false;
          }
          */
+      flip = false;
       if (on_effects == 0 && off_effects == 0) timeon = true;
 
       if (timeon) {

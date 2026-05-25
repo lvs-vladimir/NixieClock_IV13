@@ -3,10 +3,10 @@ void SwitchEffects(){
   if (mooveNixie.isReady()){
     // **********Анимация выключения изображения справо лево (скролл)*********************
     if (off_effects == 1){
-      for(byte i=0; i<Counter; i++){
-        buffer[i] = textbuffer[(5-Counter)+1+i];
+      for(byte i=0; i<5; i++){
+        buffer[i] = buffer[i+1];
       }
-      buffer[Counter] = ' ';
+      buffer[5] = ' ';
       Counter--;
       if (Counter < 0){
         off_effects = 0;

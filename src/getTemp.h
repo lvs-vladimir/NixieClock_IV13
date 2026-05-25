@@ -24,8 +24,9 @@ void getTemp2(byte i){
   else if (i>1) return;
   String jsonBuffer = httpGETRequest(serverPath.c_str());
   JSONVar myObject = JSON.parse(jsonBuffer);
-  if (i==0) {
-    byte j=4;
+    if (i==0) {
+        owm_ok = false;
+        byte j=4;
     while (j<=6) {
       SensorsAutoShow[j]="";//очистка
       SensorsDisplay[j]="";//очистка
@@ -60,6 +61,7 @@ void getTemp2(byte i){
         SensorsDisplay[6]+=ophumidity;
         SensorsDisplay[6]+="%";
 
+        owm_ok = true;
         Serial.print("OP: ");
         Serial.println(optemperature);
         Serial.println(oppressure);

@@ -10,7 +10,7 @@ void build() {
   GP.IMAGE("/iv13.jpg","100%");
   GP.HR(); //разделительная линия 
   //динамическое обновленеие данных на странице из переменных
-  GP.UPDATE("temperature,humudity,pressure,altitude,lux,timesystem,btc,eth,tempsystem,timedisp,sens0,sens1,sens2,sens3,lg");
+  GP.UPDATE("temperature,humudity,pressure,altitude,lux,optemp,ophum,oppres,timesystem,btc,eth,tempsystem,timedisp,sens0,sens1,sens2,sens3,lg");
   //Кликабельный страницы с обновлением
   GP.NAV_TABS_LINKS("/,/setting,/info,/firmware,/log", TAB_LINKS_NAMES[mydata.lng], GP_BLUE);
 
@@ -122,6 +122,17 @@ void build() {
     M_BOX(GP_LEFT, GP.LABEL("Высота:"); GP.LABEL(" ", "altitude"); GP.LABEL("M"); GP.BREAK(););
     GP.BLOCK_END();
 
+    //Блок OpenWeatherMap
+    if (owm_ok) {
+      GP.BLOCK_THIN_BEGIN();
+      M_BOX(GP_CENTER, GP.LABEL("OpenWeatherMap"););
+      GP.HR();
+      M_BOX(GP_LEFT, GP.LABEL("Температура:"); GP.LABEL(" ", "optemp"); GP.LABEL("°C"); GP.BREAK(););
+      M_BOX(GP_LEFT, GP.LABEL("Влажность:"); GP.LABEL(" ", "ophum"); GP.LABEL("%"); GP.BREAK(););
+      M_BOX(GP_LEFT, GP.LABEL("Давление:"); GP.LABEL(" ", "oppres"); GP.LABEL("hPa"); GP.BREAK(););
+      GP.BLOCK_END();
+    }
+
     //Блок для вывода VEML7700
     GP.BLOCK_THIN_BEGIN();
     M_BOX(GP_CENTER, GP.LABEL("VEML7700"););
@@ -137,12 +148,26 @@ void build() {
     GP.HR();
     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DATA_SHOW_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("auto_show_switch", mydata.autoshow_switch, GP_BLUE); GP.SPINNER("autoshow_sec", mydata.autoshow_min, 5, 255, 1, 0, GP_BLUE, "50px", 0);););
     GP.BREAK();
-    M_BOX(GP_LEFT, GP.LABEL("1:"); GP.SELECT("s_a_s0", SensorsAutoShowSelect2, mydata.autoshow_select[0], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec0", mydata.autoshow_select_sec[1], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
-    M_BOX(GP_LEFT, GP.LABEL("2:"); GP.SELECT("s_a_s1", SensorsAutoShowSelect2, mydata.autoshow_select[1], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec1", mydata.autoshow_select_sec[2], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
-    M_BOX(GP_LEFT, GP.LABEL("3:"); GP.SELECT("s_a_s2", SensorsAutoShowSelect2, mydata.autoshow_select[2], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec2", mydata.autoshow_select_sec[3], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
-    M_BOX(GP_LEFT, GP.LABEL("4:"); GP.SELECT("s_a_s3", SensorsAutoShowSelect2, mydata.autoshow_select[3], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec3", mydata.autoshow_select_sec[4], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
-    M_BOX(GP_LEFT, GP.LABEL("5:"); GP.SELECT("s_a_s4", SensorsAutoShowSelect2, mydata.autoshow_select[4], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec4", mydata.autoshow_select_sec[5], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
-    M_BOX(GP_LEFT, GP.LABEL("6:"); GP.SELECT("s_a_s5", SensorsAutoShowSelect2, mydata.autoshow_select[5], 0, 0, 1); M_BOX(GP_RIGHT, GP.SPINNER("autoshow_select_sec5", mydata.autoshow_select_sec[6], 0, 30, 1, 0, GP_BLUE, "50px", 0);););
+    for (byte i = 0; i < mydata.autoshow_slots; i++) {
+      char buf[20];
+      snprintf(buf, sizeof(buf), "%d:", i + 1);
+      M_BOX(GP_LEFT,
+        GP.LABEL(buf);
+        snprintf(buf, sizeof(buf), "sa%d", i);
+        GP.SELECT(buf, SensorsAutoShowSelect2, mydata.autoshow_select[i], 0, 0, 1);
+        M_BOX(GP_RIGHT,
+          snprintf(buf, sizeof(buf), "se%d", i);
+          GP.SPINNER(buf, mydata.autoshow_select_sec[i + 1], 0, 30, 1, 0, GP_BLUE, "50px", 0);
+          snprintf(buf, sizeof(buf), "rm%d", i);
+          GP.BUTTON_MINI(buf, "✕", "", GP_RED, "20px", 0, 1);
+        );
+      );
+      GP.BREAK();
+    }
+    if (mydata.autoshow_slots < 6) {
+      GP.BUTTON_MINI("add_slot", "+ Add", "", GP_BLUE, "80px", 0, 1);
+      GP.BREAK();
+    }
     GP.BREAK();
     M_BOX(GP_LEFT, GP.LABEL(SETTING_ANIM_NAME[mydata.lng]); M_BOX(GP_RIGHT, GP.SELECT("anim_change", SETTING_ANIM_ARRAY[mydata.lng], mydata.anim_change, 0, 0, 1);););
     GP.HR();
@@ -259,17 +284,18 @@ void action(GyverPortal & p) {
     if (ui.clickInt("sens3_narod", mydata.nrd_sens[3]));
 
     if (ui.clickInt("autoshow_sec", mydata.autoshow_min));
-    if (ui.clickInt("autoshow_select_sec0", mydata.autoshow_select_sec[1]));
-    if (ui.clickInt("autoshow_select_sec1", mydata.autoshow_select_sec[2]));
-    if (ui.clickInt("autoshow_select_sec2", mydata.autoshow_select_sec[3]));
-    if (ui.clickInt("autoshow_select_sec3", mydata.autoshow_select_sec[4]));
-    if (ui.clickInt("autoshow_select_sec4", mydata.autoshow_select_sec[5]));
-    if (ui.clickInt("autoshow_select_sec5", mydata.autoshow_select_sec[6]));
+    for (byte i = 0; i < mydata.autoshow_slots; i++) {
+      char buf[16];
+      snprintf(buf, sizeof(buf), "se%d", i);
+      if (ui.click(buf)) mydata.autoshow_select_sec[i + 1] = ui.getInt(buf);
+    }
 
     if (ui.clickStr("txt", buffer)) {
       // textbuff = textbuffinput;
     }
     if (ui.clickInt("rad", mydata.mode)) {
+      off_effects = 0; on_effects = 0;
+      seg_anim_active = false; seg_inited = false;
       for (byte i = 0; i <= 4; i++) {
         if (mydata.mode == i) {
           mydata.display = i;
@@ -296,12 +322,26 @@ void action(GyverPortal & p) {
     if (ui.click("type_sensor2")) mydata.nrd_type_sensor[2] = ui.getInt("type_sensor2");
     if (ui.click("type_sensor3")) mydata.nrd_type_sensor[3] = ui.getInt("type_sensor3");
 
-    if (ui.click("s_a_s0")) mydata.autoshow_select[0] = ui.getInt("s_a_s0");
-    if (ui.click("s_a_s1")) mydata.autoshow_select[1] = ui.getInt("s_a_s1");
-    if (ui.click("s_a_s2")) mydata.autoshow_select[2] = ui.getInt("s_a_s2");
-    if (ui.click("s_a_s3")) mydata.autoshow_select[3] = ui.getInt("s_a_s3");
-    if (ui.click("s_a_s4")) mydata.autoshow_select[4] = ui.getInt("s_a_s4");
-    if (ui.click("s_a_s5")) mydata.autoshow_select[5] = ui.getInt("s_a_s5");
+    for (byte i = 0; i < mydata.autoshow_slots; i++) {
+      char buf[16];
+      snprintf(buf, sizeof(buf), "sa%d", i);
+      if (ui.click(buf)) mydata.autoshow_select[i] = ui.getInt(buf);
+      snprintf(buf, sizeof(buf), "se%d", i);
+      if (ui.click(buf)) mydata.autoshow_select_sec[i + 1] = ui.getInt(buf);
+      snprintf(buf, sizeof(buf), "rm%d", i);
+      if (ui.click(buf)) {
+        for (byte j = i; j < mydata.autoshow_slots - 1; j++) {
+          mydata.autoshow_select[j] = mydata.autoshow_select[j + 1];
+          mydata.autoshow_select_sec[j + 1] = mydata.autoshow_select_sec[j + 2];
+        }
+        mydata.autoshow_slots--;
+      }
+    }
+    if (ui.click("add_slot") && mydata.autoshow_slots < 6) {
+      mydata.autoshow_slots++;
+      mydata.autoshow_select[mydata.autoshow_slots - 1] = 0;
+      mydata.autoshow_select_sec[mydata.autoshow_slots] = 10;
+    }
 
     if (ui.click("timeZone")) {
       mydata.GMT = ui.getInt("timeZone") - 12;
@@ -373,11 +413,15 @@ void action(GyverPortal & p) {
     if (ui.update("pressure")) ui.answer(bmepressure);
     if (ui.update("altitude")) ui.answer(altitude);
     if (ui.update("lux")) ui.answer(vemllux);
+    if (ui.update("optemp")) ui.answer(optemperature);
+    if (ui.update("ophum")) ui.answer(ophumidity);
+    if (ui.update("oppres")) ui.answer(oppressure);
 
-    //if (ui.update("timedisp")) ui.answer(SET_TEMPERATURE_SENSOR_ARRAY);
-    char a[16];
-    //sprintf_P(a, (PGM_P)F("%02d:%02d:%02d"), hour, minute, second);
-    if (ui.update("timesystem")) ui.answer(a);
+    if (ui.update("timesystem")) {
+      char a[16];
+      sprintf_P(a, (PGM_P)F("%02d:%02d:%02d"), hour, minute, second);
+      ui.answer(a);
+    }
     if (ui.update("btc")) ui.answer(pricebtc);
     if (ui.update("eth")) ui.answer(priceeth);
     if (ui.update("tempsystem")) {
