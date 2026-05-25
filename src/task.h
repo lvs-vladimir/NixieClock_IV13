@@ -10,7 +10,7 @@ void Task0(void * pvParameters) {
       cryptoCount=0;
       //Меняем анимацию смены режимов 
     }
-    if (minsCount >= 30) { // каждые 30 мин синхронизация с RTC
+    if (minsCount >= 30) {
       minsCount = 0;
     }
     vTaskDelay(10000); //Запускаем данную задачу только 1 раз в секунду. Иначе перезагрузка ESP Почему????
