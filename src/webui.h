@@ -136,7 +136,7 @@ void build() {
     //Блок OpenWeatherMap
     if (owm_ok) {
       GP.BLOCK_THIN_BEGIN();
-      M_BOX(GP_CENTER, GP.LABEL("OpenWeatherMap"););
+      M_BOX(GP_CENTER, GP.LABEL(String("OpenWeatherMap: ") + mydata.owCity););
       GP.HR();
       M_BOX(GP_LEFT, GP.LABEL("Температура:"); GP.LABEL(" ", "optemp"); GP.LABEL("°C"); GP.BREAK(););
       M_BOX(GP_LEFT, GP.LABEL("Влажность:"); GP.LABEL(" ", "ophum"); GP.LABEL("%"); GP.BREAK(););
