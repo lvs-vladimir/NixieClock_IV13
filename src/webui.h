@@ -43,7 +43,7 @@ void build() {
 
     //*****************************************Подключение к Openweather********************************************
     GP.BLOCK_THIN_BEGIN();
-    M_BOX(GP_CENTER, GP.LABEL(SETTING_OP_NAME[mydata.lng]););
+    M_BOX(GP_CENTER, GP.LABEL(F("<a href=\"https://openweathermap.org\" target=\"_blank\">OpenWeatherMap.org</a>"), "", GP_DEFAULT, 0, 1););
     GP.HR();
     M_BOX(GP_LEFT, GP.LABEL(SETTING_OP_APIKEY[mydata.lng]); M_BOX(GP_RIGHT, GP.TEXT("ap", "ApiKey", mydata.owMapApiKey, "100%");););
     M_BOX(GP_LEFT, GP.LABEL(SETTING_OP_CITY[mydata.lng]); M_BOX(GP_RIGHT, GP.TEXT("ct", "City", mydata.owCity, "100%");););
