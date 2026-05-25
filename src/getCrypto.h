@@ -2,7 +2,7 @@
 void getCrypto(){
    
    byte j=11;
-    while (j<=12) {
+    while (j<=13) {
       SensorsAutoShow[j]="";
       SensorsDisplay[j]="";
       j++;
@@ -29,5 +29,13 @@ void getCrypto(){
    SensorsDisplay[12]+=",";
    SensorsDisplay[12]=priceeth;
    SensorsDisplay[12]+="E";
+
+   SensorsAutoShow[13]+=",";
+   SensorsAutoShow[13]+="P";
+   SensorsAutoShow[13]+=usdRubRate;
+
+   SensorsDisplay[13]+=",";
+   SensorsDisplay[13]="P";
+   SensorsDisplay[13]+=usdRubRate;
 
 }

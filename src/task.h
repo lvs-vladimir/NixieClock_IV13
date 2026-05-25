@@ -102,7 +102,7 @@ void Task1(void * pvParameters) {
       SensorsAutoShowSelect2 = "";
       SensorsAutoShowSelect = "";
       byte k = 0;
-      while (k <= 12) {
+      while (k <= 13) {
         SensorsAutoShowSelect2 += SensorsAutoShow[k];
         SensorsAutoShowSelect += SensorsDisplay[k];
         k++;
