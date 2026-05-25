@@ -242,6 +242,7 @@ int bmevalue, bmehumudity, bmepressure, bmetemperature, altitude;
 int  oppressure, ophumidity, optemperature, narodpressure, narodhumidity, narodtemperature;
 bool bme_ok = false;
 bool owm_ok = false;
+int usdRubRate;
 int bvs[4];//Buffer Value sensors
 
 int brightnessIV13;

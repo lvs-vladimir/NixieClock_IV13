@@ -10,7 +10,7 @@ void build() {
   GP.IMAGE("/iv13.jpg","100%");
   GP.HR(); //разделительная линия 
   //динамическое обновленеие данных на странице из переменных
-  GP.UPDATE("temperature,humudity,pressure,altitude,lux,optemp,ophum,oppres,timesystem,btc,eth,tempsystem,timedisp,sens0,sens1,sens2,sens3,lg");
+  GP.UPDATE("temperature,humudity,pressure,altitude,lux,optemp,ophum,oppres,usdrub,btc,eth,sens0,sens1,sens2,sens3,lg");
   //Кликабельный страницы с обновлением
   GP.NAV_TABS_LINKS("/,/setting,/info,/firmware,/log", TAB_LINKS_NAMES[mydata.lng], GP_BLUE);
 
@@ -112,6 +112,15 @@ void build() {
     // главная страница, корень, "/"
   } else {
     //*******************Начало вкладки HOME***********************************************************
+    //Блок CoinGecko
+    GP.BLOCK_THIN_BEGIN();
+    M_BOX(GP_CENTER, GP.LABEL("CoinGecko"););
+    GP.HR();
+    M_BOX(GP_LEFT, GP.LABEL("BTC:"); GP.LABEL(" ", "btc"); GP.LABEL("$"); GP.BREAK(););
+    M_BOX(GP_LEFT, GP.LABEL("ETH:"); GP.LABEL(" ", "eth"); GP.LABEL("$"); GP.BREAK(););
+    M_BOX(GP_LEFT, GP.LABEL("USD/RUB:"); GP.LABEL(" ", "usdrub"); GP.BREAK(););
+    GP.BLOCK_END();
+
     //Блок для вывода BME280
     if (bme_ok) {
     GP.BLOCK_THIN_BEGIN();
@@ -142,11 +151,9 @@ void build() {
     M_BOX(GP_LEFT, GP.LABEL("LUX:"); GP.LABEL(" ", "lux"); GP.BREAK(););
     GP.BLOCK_END();
 
-    //Блок для вывода данных дисплея
-
+    //Блок настроек автопоказа
     GP.BLOCK_THIN_BEGIN();
     M_BOX(GP_CENTER, GP.LABEL(DISPLAY_DATA_LABEL[mydata.lng]););
-
     GP.HR();
     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_DATA_SHOW_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("auto_show_switch", mydata.autoshow_switch, GP_BLUE); GP.SPINNER("autoshow_sec", mydata.autoshow_min, 5, 255, 1, 0, GP_BLUE, "50px", 0);););
     GP.BREAK();
@@ -178,36 +185,7 @@ void build() {
     GP.HR();
     M_BOX(GP_LEFT, GP.LABEL(DISPLAY_SECONDS_SWITCH[mydata.lng]); M_BOX(GP_RIGHT, GP.SWITCH("seconds_switch", mydata.seconds_switch, GP_BLUE);););
     GP.HR();
-
-  GP.BLOCK_END();
-
-    //Блок для вывода данных дисплея
-    GP.BLOCK_THIN_BEGIN();
-    M_BOX(GP_CENTER, GP.LABEL("Данные дисплея"););
-    GP.HR();
-    sprintf_P(SET_TEMPERATURE_SENSOR_ARRAY, (PGM_P) F("%S"), "BME280,Narodmon,Openweather");
-    M_BOX(GP_LEFT, GP.RADIO("rad", 0, mydata.mode, GP_BLUE); GP.LABEL("Время:"); GP.LABEL("", "timesystem"); GP.LABEL(" "););
-    M_BOX(GP_LEFT, GP.RADIO("rad", 1, mydata.mode, GP_BLUE); GP.LABEL("Биток:"); GP.LABEL("", "btc"); GP.LABEL("$"););
-    M_BOX(GP_LEFT, GP.RADIO("rad", 2, mydata.mode, GP_BLUE); GP.LABEL("Эфир:"); GP.LABEL("", "eth"); GP.LABEL("$"););
     GP.BLOCK_END();
-
-    GP.BLOCK_THIN_BEGIN();
-
-    //GP.HR(); 
-    //M_BOX(GP_LEFT, GP.RADIO("dot", 0, mydata.modedots, GP_BLUE);GP.LABEL("1 последовательно"););
-    //M_BOX(GP_LEFT, GP.RADIO("dot", 1, mydata.modedots, GP_BLUE);GP.LABEL("2 одновременно"); );;
-    //M_BOX(GP_LEFT, GP.SWITCH("sw1", mydata.sw1, GP_BLUE););
-    GP.BLOCK_END();
-
-    /*
-  GP.BLOCK_THIN_BEGIN();
-  M_BOX(GP_CENTER, GP.LABEL("Отображение секунд");); 
-  GP.HR(); 
-  M_BOX(GP_LEFT, GP.RADIO("sec", 0, mydata.modetime, GP_BLUE);GP.LABEL("Вкл"););
-  M_BOX(GP_LEFT, GP.RADIO("sec", 1, mydata.modetime, GP_BLUE);GP.LABEL("Выкл"); );
-  GP.BLOCK_END();
-  GP.TEXT("txt", "text", buffer);    GP.BREAK();
-*/
 
   }
   GP.BUILD_END();
@@ -345,13 +323,6 @@ void action(GyverPortal & p) {
       NTPClientUpdate();
 
     }
-    if (ui.click("timedisp")) {
-      mydata.displaytemperature = ui.getInt("timedisp");
-      Serial.println(mydata.displaytemperature);
-      // sprintf_P(SET_TEMPERATURE_SENSOR_ARRAY, (PGM_P)F("BME280: %02d*C,Narod: %02d*C,OP: %02d*C"), bmetemperature, narodtemperature, optemperature);
-      ValueTempUpdate(); //Обновляем глобальную переменную температуры в зависимости от выбранного датчики
-
-    }
     if (ui.click("lng")) {
       mydata.lng = ui.getInt("lng");
       Serial.println(mydata.lng);
@@ -420,12 +391,7 @@ void action(GyverPortal & p) {
     }
     if (ui.update("btc")) ui.answer(pricebtc);
     if (ui.update("eth")) ui.answer(priceeth);
-    if (ui.update("tempsystem")) {
-      ui.answer(TempValue);
-      if (mydata.displaytemperature == 0) TempValue = bmetemperature;
-      if (mydata.displaytemperature == 1) TempValue = narodtemperature;
-      if (mydata.displaytemperature == 2) TempValue = optemperature;
-    }
+    if (ui.update("usdrub")) ui.answer(usdRubRate);
     /*temperature,humudity,pressure,lux
     if (ui.update("t1")) ui.answer(random(100));
     //if (ui.update("t1")) ui.answer(bmetemperature);
