@@ -247,12 +247,14 @@ void Task1(void * pvParameters) {
           wifi_dc_state = true;
           ap_show_scroll = true;
           ap_scroll_pos = 0;
-          log_add('W', "WiFi lost");
+          WiFi.softAP("13-AP");
+          log_add('W', "WiFi lost, AP started");
         }
       } else {
         if (wifi_dc_state) {
           wifi_dc_state = false;
           ap_show_scroll = false;
+          WiFi.softAPdisconnect(true);
           log_add('I', "WiFi reconnected");
           timeon = true;
           flip = true;
